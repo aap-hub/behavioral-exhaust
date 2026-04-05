@@ -1,0 +1,27 @@
+# Lightweight validation container for SWE-bench tasks.
+# Just Python 3.10 + git + pip install + pytest. ~200MB image.
+#
+# Usage:
+#   docker build -t uga-validate -f docker/Dockerfile.validate .
+#   docker run --rm \
+#     -v $(pwd)/tasks/repos/TASK_ID:/app \
+#     -v $(pwd)/patches/TASK.patch:/patch.diff \
+#     uga-validate "pytest testing/test_foo.py -x"
+
+FROM python:3.10-slim
+
+# Issue #3 fix: install git (needed for git apply in validate_task.sh)
+RUN apt-get update && apt-get install -y --no-install-recommends git && rm -rf /var/lib/apt/lists/*
+
+RUN pip install --no-cache-dir pytest pytest-xdist attrs pluggy toml py iniconfig
+
+WORKDIR /app
+
+# The validation script:
+# 1. Apply the agent's patch
+# 2. pip install the repo
+# 3. Run the FAIL_TO_PASS tests
+COPY docker/validate_task.sh /validate.sh
+RUN chmod +x /validate.sh
+
+ENTRYPOINT ["/validate.sh"]
