@@ -1,0 +1,11 @@
+{
+  "gate_config": {
+    "alignment_threshold": 0.5,
+    "deliberation_threshold_tokens": 29,
+    "deliberation_threshold_chars": 117,
+    "critic_timeout_seconds": 60,
+    "max_retries_per_gate": 2
+  },
+  "computed_at": "2026-03-28T00:00:00+00:00",
+  "source": "Phase 0 passing runs, median per-call values. alignment_threshold=0.5 (binary check: does reasoning mention target file?). deliberation_threshold_tokens=29 (median per-call token count, passing runs, n=503 calls). deliberation_threshold_chars=117 (median per-call char count, passing runs). Passing run means: alignment=0.1883 vs failing=0.0480 (4x). Deliberation: median per-call=29 tokens (passing) vs 28 (failing); effect is stronger at run level."
+}

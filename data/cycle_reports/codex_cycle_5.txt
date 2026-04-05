@@ -1,0 +1,14 @@
+# Codex Audit — Cycle 5
+# 2026-03-29T04:23:24.759238+00:00
+
+P0. [`src/db.py`](/Users/al/projects/uga-harness/src/db.py#L197) and [`src/db.py`](/Users/al/projects/uga-harness/src/db.py#L225) call `commit()` inside `insert_run`/`insert_tool_call`, but callers assume atomic transactions in [`src/runner.py`](/Users/al/projects/uga-harness/src/runner.py#L374) and [`src/analysis.py`](/Users/al/projects/uga-harness/src/analysis.py#L408). Any later insert failure leaves a committed `runs` row and possibly a partial `tool_calls` set, silently corrupting counts.
+
+P1. [`src/trace_collector.py`](/Users/al/projects/uga-harness/src/trace_collector.py#L185) classifies by `startswith()` before checking command chaining. `git status && rm -rf x`, `python -c 'print(1)' ; touch f`, etc. are misclassified as read-only because `&&`/`;` are only handled in the pipe branch. This drops state-modifying Bash calls from the analysis set.
+
+P1. [`src/analysis.py`](/Users/al/projects/uga-harness/src/analysis.py#L101) treats missing or unparseable `tool_result_json` as success. Any dropped/malformed tool result silently resets `prior_failure_streak` to 0, biasing structural features toward “no prior failures”.
+
+P1. [`src/swebench_validate.py`](/Users/al/projects/uga-harness/src/swebench_validate.py#L105) replays `Edit` operations with naive `str.replace(..., 1)` and silently ignores unmatched edits. The derived patch can differ from what the agent actually changed, so downstream `task_success` relabeling in [`src/docker_validate.py`](/Users/al/projects/uga-harness/src/docker_validate.py#L127) / [`src/swebench_validate.py`](/Users/al/projects/uga-harness/src/swebench_validate.py#L263) can overwrite ground truth with corrupted validation results.
+
+P2. [`src/analysis.py`](/Users/al/projects/uga-harness/src/analysis.py#L294) still computes call-level Spearman correlations using run-level `task_success` replicated across every call. The code warns about inflation, but it still emits statistically invalid call-level results that overstate effective sample size.
+
+P2. [`src/trace_collector.py`](/Users/al/projects/uga-harness/src/trace_collector.py#L108) says Python/Node one-liners are read-only only if they “contain print/console.log”, but the implementation only checks for a small denylist. Many side-effecting commands without those substrings are mislabeled read-only.

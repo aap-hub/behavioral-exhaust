@@ -1,0 +1,764 @@
+tasks:
+- task_id: p0-smoke-bugfix-01
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/smoke-bugfix-01
+  prompt: Fix the bug in calculator.py that causes test_add to fail. Run the tests to confirm.
+  validation_command: python3 -m pytest test_calculator.py -x
+  expected_min_calls: 3
+- task_id: p0-smoke-feature-01
+  phase: 0
+  type: feature
+  language: python
+  repo: tasks/repos/smoke-feature-01
+  prompt: Add a divide function to calculator.py that handles division by zero by raising a ValueError. Make all tests pass.
+  validation_command: python3 -m pytest test_calculator.py -x
+  expected_min_calls: 4
+- task_id: p0-bugfix-multi-01
+  phase: -1
+  type: bugfix
+  language: python
+  repo: tasks/repos/p0-bugfix-multi-01
+  prompt: The tests in tests/test_pipeline.py are failing with KeyError. Find and fix the bug so all tests pass. Run the tests
+    to confirm.
+  validation_command: python3 -m pytest tests/ -v
+  expected_min_calls: 5
+- task_id: p0-refactor-01
+  phase: -1
+  type: refactor
+  language: python
+  repo: tasks/repos/p0-refactor-01
+  prompt: Refactor the validation functions in utils.py into a Validator class. Update app.py to use the new class. All tests
+    in tests/test_validation.py must still pass.
+  validation_command: python3 -m pytest tests/ -v
+  expected_min_calls: 6
+- task_id: p0-feature-pagination-01
+  phase: -1
+  type: feature
+  language: python
+  repo: tasks/repos/p0-feature-pagination-01
+  prompt: Add pagination support to the Store.get_items() method. The tests in tests/test_store.py show the expected API.
+    Make all tests pass.
+  validation_command: python3 -m pytest tests/ -v
+  expected_min_calls: 5
+- task_id: p0-bugfix-subtle-01
+  phase: -1
+  type: bugfix
+  language: python
+  repo: tasks/repos/p0-bugfix-subtle-01
+  prompt: The formatting tests in tests/test_calculator.py are failing — the output shows wrong decimal precision. Find the
+    root cause and fix it. All tests must pass.
+  validation_command: python3 -m pytest tests/ -v
+  expected_min_calls: 6
+- task_id: pytest-dev__pytest-8365
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/pytest-dev__pytest-8365
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\ntmpdir creation fails when the username contains illegal characters for directory names\n\
+    `tmpdir`, `tmpdir_factory` and `tmp_path_factory` rely on `getpass.getuser()` for determining the `basetemp` directory.\
+    \ I found that the user name returned by `getpass.getuser()` may return characters that are not allowed for directory\
+    \ names. This may lead to errors while creating the temporary directory.\n\nThe situation in which I reproduced this issue\
+    \ was while being logged in through an ssh connection into my Windows 10 x64 Enterprise version (1909) using an OpenSSH_for_Windows_7.7p1\
+    \ server. In this configuration the command `python -c \"import getpass; print(getpass.getuser())\"` returns my domain\
+    \ username e.g. `contoso\\john_doe` instead of `john_doe` as when logged in regularly using a local session.\n\nWhen trying\
+    \ to create a temp directory in pytest through e.g. `tmpdir_factory.mktemp('foobar')` this fails with the following error\
+    \ message:\n```\nself = WindowsPath('C:/Users/john_doe/AppData/Local/Temp/pytest-of-contoso/john_doe')\nmode = 511, parents\
+    \ = False, exist_ok = True\n\n    def mkdir(self, mode=0o777, parents=False, exist_ok=False):\n        \"\"\"\n      \
+    \  Create a new directory at this given path.\n        \"\"\"\n        if self._closed:\n            self._raise_closed()\n\
+    \        try:\n>           self._accessor.mkdir(self, mode)\nE           FileNotFoundError: [WinError 3] The system cannot\
+    \ find the path specified: 'C:\\\\Users\\\\john_doe\\\\AppData\\\\Local\\\\Temp\\\\pytest-of-contoso\\\\john_doe'\n\n\
+    C:\\Python38\\lib\\pathlib.py:1266: FileNotFoundError\n```\n\nI could also reproduce this without the complicated ssh/windows\
+    \ setup with pytest 6.2.2 using the following commands from a `cmd`:\n```bat\necho def test_tmpdir(tmpdir):>test_tmp.py\n\
+    echo   pass>>test_tmp.py\nset LOGNAME=contoso\\john_doe\npy.test test_tmp.py\n```\n\nThanks for having a look at this!\n"
+  validation_command: python -m pytest testing/test_tmpdir.py::test_tmp_path_factory_handles_invalid_dir_characters -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: pytest-dev__pytest-5413
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/pytest-dev__pytest-5413
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nstr() on the pytest.raises context variable doesn't behave same as normal exception catch\n\
+    Pytest 4.6.2, macOS 10.14.5\n\n```Python\ntry:\n    raise LookupError(\n        f\"A\\n\"\n        f\"B\\n\"\n       \
+    \ f\"C\"\n    )\nexcept LookupError as e:\n    print(str(e))\n```\nprints\n\n> A\n> B\n> C\n\nBut\n\n```Python\nwith pytest.raises(LookupError)\
+    \ as e:\n    raise LookupError(\n        f\"A\\n\"\n        f\"B\\n\"\n        f\"C\"\n    )\n\nprint(str(e))\n```\n\n\
+    prints\n\n> <console>:3: LookupError: A\n\nIn order to get the full error message, one must do `str(e.value)`, which is\
+    \ documented, but this is a different interaction. Any chance the behavior could be changed to eliminate this gotcha?\n"
+  validation_command: python -m pytest testing/code/test_excinfo.py::test_excinfo_repr_str -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: pytest-dev__pytest-7432
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/pytest-dev__pytest-7432
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nskipping: --runxfail breaks pytest.mark.skip location reporting\npytest versions: 5.4.x, current\
+    \ master\n\nWhen `@pytest.mark.skip`/`skipif` marks are used to skip a test, for example\n\n```py\nimport pytest\n@pytest.mark.skip\n\
+    def test_skip_location() -> None:\n    assert 0\n```\n\nthe expected skip location reported should point to the item itself,\
+    \ and this is indeed what happens when running with `pytest -rs`:\n\n```\nSKIPPED [1] test_it.py:3: unconditional skip\n\
+    ```\n\nHowever, adding `pytest -rs --runxfail` breaks this:\n\n```\nSKIPPED [1] src/_pytest/skipping.py:238: unconditional\
+    \ skip\n```\n\nThe `--runxfail` is only about xfail and should not affect this at all.\n\n---\n\nHint: the bug is in `src/_pytest/skipping.py`,\
+    \ the `pytest_runtest_makereport` hook.\n"
+  validation_command: python -m pytest testing/test_skipping.py::TestXFail::test_xfail_run_with_skip_mark[test_input1-expected1]
+    -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: psf__requests-2317
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/psf__requests-2317
+  prompt: 'Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install
+    -e ".[testing]"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.
+
+
+    Fix the following issue:
+
+
+    method = builtin_str(method) problem
+
+    In requests/sessions.py is a command:
+
+
+    method = builtin_str(method)
+
+    Converts method from
+
+    b''GET''
+
+    to
+
+    "b''GET''"
+
+
+    Which is the literal string, no longer a binary string.  When requests tries to use the method "b''GET''", it gets a 404
+    Not Found response.
+
+
+    I am using python3.4 and python-neutronclient (2.3.9) with requests (2.4.3).  neutronclient is broken because it uses
+    this "args = utils.safe_encode_list(args)" command which converts all the values to binary string, including method.
+
+
+    I''m not sure if this is a bug with neutronclient or a bug with requests, but I''m starting here.  Seems if requests handled
+    the method value being a binary string, we wouldn''t have any problem.
+
+
+    Also, I tried in python2.6 and this bug doesn''t exist there. Some difference between 2.6 and 3.4 makes this not work
+    right.
+
+    '
+  validation_command: python -m pytest test_requests.py::TestTimeout::test_encoded_methods -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: sympy__sympy-21612
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/sympy__sympy-21612
+  prompt: 'Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install
+    -e ".[testing]"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.
+
+
+    Fix the following issue:
+
+
+    Latex parsing of fractions yields wrong expression due to missing brackets
+
+    Problematic latex expression: `"\\frac{\\frac{a^3+b}{c}}{\\frac{1}{c^2}}"`
+
+
+    is parsed to: `((a**3 + b)/c)/1/(c**2)`.
+
+
+    Expected is: `((a**3 + b)/c)/(1/(c**2))`.
+
+
+    The missing brackets in the denominator result in a wrong expression.
+
+
+    ## Tested on
+
+
+    - 1.8
+
+    - 1.6.2
+
+
+    ## Reproduce:
+
+
+    ```
+
+    root@d31ef1c26093:/# python3
+
+    Python 3.6.9 (default, Jan 26 2021, 15:33:00)
+
+    [GCC 8.4.0] on linux
+
+    Type "help", "copyright", "credits" or "license" for more information.
+
+    >>> from sympy.parsing.latex import parse_latex
+
+    >>> parse_latex("\\frac{\\frac{a^3+b}{c}}{\\frac{1}{c^2}}")
+
+    ((a**3 + b)/c)/1/(c**2)
+
+    ```
+
+    '
+  validation_command: python -m pytest sympy/printing/tests/test_str.py -x -k test_Mul
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: sympy__sympy-18057
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/sympy__sympy-18057
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nSympy incorrectly attempts to eval reprs in its __eq__ method\nPassing strings produced by\
+    \ unknown objects into eval is **very bad**. It is especially surprising for an equality check to trigger that kind of\
+    \ behavior. This should be fixed ASAP.\n\nRepro code:\n\n```\nimport sympy\nclass C:\n    def __repr__(self):\n      \
+    \  return 'x.y'\n_ = sympy.Symbol('x') == C()\n```\n\nResults in:\n\n```\nE   AttributeError: 'Symbol' object has no attribute\
+    \ 'y'\n```\n\nOn the line:\n\n```\n    expr = eval(\n        code, global_dict, local_dict)  # take local objects in preference\n\
+    ```\n\nWhere code is:\n\n```\nSymbol ('x' ).y\n```\n\nFull trace:\n\n```\nFAILED                   [100%]\n        class\
+    \ C:\n            def __repr__(self):\n                return 'x.y'\n\n>       _ = sympy.Symbol('x') == C()\n\n_ _ _ _\
+    \ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\nsympy/core/expr.py:124: in __eq__\n    other\
+    \ = sympify(other)\nsympy/core/sympify.py:385: in sympify\n    expr = parse_expr(a, local_dict=locals, transformations=transformations,\
+    \ evaluate=evaluate)\nsympy/parsing/sympy_parser.py:1011: in parse_expr\n    return eval_expr(code, local_dict, global_dict)\n\
+    sympy/parsing/sympy_parser.py:906: in eval_expr\n    code, global_dict, local_dict)  # take local objects in preference\n\
+    _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _\n\n>   ???\nE   AttributeError: 'Symbol'\
+    \ object has no attribute 'y'\n\n<string>:1: AttributeError\n```\n\nRelated issue: an unknown object whose repr is `x`\
+    \ will incorrectly compare as equal to a sympy symbol x:\n\n```\n    class C:\n        def __repr__(self):\n         \
+    \   return 'x'\n\n    assert sympy.Symbol('x') != C()  # fails\n```\n"
+  validation_command: python -m pytest sympy/core/tests/test_var.py -x -k test_var
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: pytest-dev__pytest-7220
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/pytest-dev__pytest-7220
+  prompt: "Fix the following issue in this repository. Run the relevant tests to verify your fix.\n\nWrong path to test file\
+    \ when directory changed in fixture\nFiles are shown as relative to new directory when working directory is changed in\
+    \ a fixture. This makes it impossible to jump to the error as the editor is unaware of the directory change. The displayed\
+    \ directory should stay relative to the original directory.\r\n\r\ntest_path_error.py:\r\n```python\r\nimport os\r\nimport\
+    \ errno\r\nimport shutil\r\n\r\nimport pytest\r\n\r\n\r\n@pytest.fixture\r\ndef private_dir():  # or (monkeypatch)\r\n\
+    \    out_dir = 'ddd'\r\n\r\n    try:\r\n        shutil.rmtree(out_dir)\r\n    except OSError as ex:\r\n        if ex.errno\
+    \ != errno.ENOENT:\r\n            raise\r\n    os.mkdir(out_dir)\r\n\r\n    old_dir = os.getcwd()\r\n    os.chdir(out_dir)\r\
+    \n    yield out_dir\r\n    os.chdir(old_dir)\r\n\r\n    # Same issue if using:\r\n    # monkeypatch.chdir(out_dir)\r\n\
+    \r\n\r\ndef test_show_wrong_path(private_dir):\r\n    assert False\r\n```\r\n\r\n```diff\r\n+ Expected: test_path_error.py:29:\
+    \ AssertionError\r\n- Displayed: ../test_path_error.py:29: AssertionError\r\n```\r\n\r\nThe full output is:\r\n```\r\n\
+    -*- mode: compilation; default-directory: \"~/src/pytest_path_error/\" -*-\r\nCompilation started at Fri Jan 10 00:05:52\r\
+    \n\r\nnox\r\nnox > Running session test\r\nnox > Creating virtual environment (virtualenv) using python3.7 in .nox/test\r\
+    \nnox > pip install pytest>=5.3\r\nnox > pip freeze\r\nattrs==19.3.0\r\nimportlib-metadata==1.3.0\r\nmore-itertools==8.0.2\r\
+    \npackaging==20.0\r\npluggy==0.13.1\r\npy==1.8.1\r\npyparsing==2.4.6\r\npytest==5.3.2\r\nsix==1.13.0\r\nwcwidth==0.1.8\r\
+    \nzipp==0.6.0\r\nnox > pytest \r\n================================= test session starts =================================\r\
+    \nplatform linux -- Python 3.7.5, pytest-5.3.2, py-1.8.1, pluggy-0.13.1\r\nrootdir: /home/lhn/src/pytest_path_error\r\n\
+    collected 1 item                                                                      \r\n\r\ntest_path_error.py F   \
+    \                                                         [100%]\r\n\r\n====================================== FAILURES\
+    \ =======================================\r\n________________________________ test_show_wrong_path _________________________________\r\
+    \n\r\nprivate_dir = 'ddd'\r\n\r\n    def test_show_wrong_path(private_dir):\r\n>       assert False\r\nE       assert\
+    \ False\r\n\r\n../test_path_error.py:29: AssertionError\r\n================================== 1 failed in 0.03s ==================================\r\
+    \nnox > Command pytest  failed with exit code 1\r\nnox > Session test failed.\r\n\r\nCompilation exited abnormally with\
+    \ code 1 at Fri Jan 10 00:06:01\r\n```\r\n\r\nnoxfile.py:\r\n```python\r\nimport nox\r\n\r\n@nox.session(python='3.7')\r\
+    \ndef test(session):\r\n    session.install('pytest>=5.3')\r\n    session.run('pip', 'freeze')\r\n    session.run('pytest')\r\
+    \n```\n"
+  validation_command: python -m pytest testing/test_nodes.py::test_failure_with_changed_cwd -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: pytest-dev__pytest-5227
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/pytest-dev__pytest-5227
+  prompt: "Fix the following issue in this repository. Run the relevant tests to verify your fix.\n\nImprove default logging\
+    \ format\nCurrently it is:\r\n\r\n> DEFAULT_LOG_FORMAT = \"%(filename)-25s %(lineno)4d %(levelname)-8s %(message)s\"\r\
+    \n\r\nI think `name` (module name) would be very useful here, instead of just the base filename.\r\n\r\n(It might also\
+    \ be good to have the relative path there (maybe at the end), but it is usually still very long (but e.g. `$VIRTUAL_ENV`\
+    \ could be substituted therein))\r\n\r\nCurrently it would look like this:\r\n```\r\nutils.py                   114 DEBUG\
+    \    (0.000) SELECT \"app_url\".\"id\", \"app_url\".\"created\", \"app_url\".\"url\" FROM \"app_url\" WHERE \"app_url\"\
+    .\"id\" = 2; args=(2,)\r\nmultipart.py               604 DEBUG    Calling on_field_start with no data\r\n```\r\n\r\n\r\
+    \nUsing `DEFAULT_LOG_FORMAT = \"%(levelname)-8s %(name)s:%(filename)s:%(lineno)d %(message)s\"` instead:\r\n\r\n```\r\n\
+    DEBUG    django.db.backends:utils.py:114 (0.000) SELECT \"app_url\".\"id\", \"app_url\".\"created\", \"app_url\".\"url\"\
+    \ FROM \"app_url\" WHERE \"app_url\".\"id\" = 2; args=(2,)\r\nDEBUG    multipart.multipart:multipart.py:604 Calling on_field_start\
+    \ with no data\r\n```\n"
+  validation_command: python -m pytest testing/logging/test_reporting.py::test_log_cli_enabled_disabled[True] testing/logging/test_reporting.py::test_log_cli_default_level
+    testing/logging/test_reporting.py::test_sections_single_new_line_after_test_outcome -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: pytest-dev__pytest-5221
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/pytest-dev__pytest-5221
+  prompt: 'Fix the following issue in this repository. Run the relevant tests to verify your fix.
+
+
+    Display fixture scope with `pytest --fixtures`
+
+    It would be useful to show fixture scopes with `pytest --fixtures`; currently the only way to learn the scope of a fixture
+    is look at the docs (when that is documented) or at the source code.
+
+    '
+  validation_command: python -m pytest testing/python/fixtures.py::TestShowFixtures::test_show_fixtures testing/python/fixtures.py::TestShowFixtures::test_show_fixtures_verbose
+    -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: pytest-dev__pytest-8906
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/pytest-dev__pytest-8906
+  prompt: "Fix the following issue in this repository. Run the relevant tests to verify your fix.\n\nImprove handling of skip\
+    \ for module level\nThis is potentially about updating docs, updating error messages or introducing a new API.\r\n\r\n\
+    Consider the following scenario:\r\n\r\n`pos_only.py` is using Python 3,8 syntax:\r\n```python\r\ndef foo(a, /, b):\r\n\
+    \    return a + b\r\n```\r\n\r\nIt should not be tested under Python 3.6 and 3.7.\r\nThis is a proper way to skip the\
+    \ test in Python older than 3.8:\r\n```python\r\nfrom pytest import raises, skip\r\nimport sys\r\nif sys.version_info\
+    \ < (3, 8):\r\n    skip(msg=\"Requires Python >= 3.8\", allow_module_level=True)\r\n\r\n# import must be after the module\
+    \ level skip:\r\nfrom pos_only import *\r\n\r\ndef test_foo():\r\n    assert foo(10, 20) == 30\r\n    assert foo(10, b=20)\
+    \ == 30\r\n    with raises(TypeError):\r\n        assert foo(a=10, b=20)\r\n```\r\n\r\nMy actual test involves parameterize\
+    \ and a 3.8 only class, so skipping the test itself is not sufficient because the 3.8 class was used in the parameterization.\r\
+    \n\r\nA naive user will try to initially skip the module like:\r\n\r\n```python\r\nif sys.version_info < (3, 8):\r\n \
+    \   skip(msg=\"Requires Python >= 3.8\")\r\n```\r\nThis issues this error:\r\n\r\n>Using pytest.skip outside of a test\
+    \ is not allowed. To decorate a test function, use the @pytest.mark.skip or @pytest.mark.skipif decorators instead, and\
+    \ to skip a module use `pytestmark = pytest.mark.{skip,skipif}.\r\n\r\nThe proposed solution `pytestmark = pytest.mark.{skip,skipif}`,\
+    \ does not work  in my case: pytest continues to process the file and fail when it hits the 3.8 syntax (when running with\
+    \ an older version of Python).\r\n\r\nThe correct solution, to use skip as a function is actively discouraged by the error\
+    \ message.\r\n\r\nThis area feels a bit unpolished.\r\nA few ideas to improve:\r\n\r\n1. Explain skip with  `allow_module_level`\
+    \ in the error message. this seems in conflict with the spirit of the message.\r\n2. Create an alternative API to skip\
+    \ a module to make things easier: `skip_module(\"reason\")`, which can call `_skip(msg=msg, allow_module_level=True)`.\r\
+    \n\r\n\n"
+  validation_command: python -m pytest testing/test_skipping.py::test_module_level_skip_error -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: pytest-dev__pytest-6116
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/pytest-dev__pytest-6116
+  prompt: "Fix the following issue in this repository. Run the relevant tests to verify your fix.\n\npytest --collect-only\
+    \ needs a one char shortcut command\nI find myself needing to run `--collect-only` very often and that cli argument is\
+    \ a very long to type one. \r\n\r\nI do think that it would be great to allocate a character for it, not sure which one\
+    \ yet. Please use up/down thumbs to vote if you would find it useful or not and eventually proposing which char should\
+    \ be used. \r\n\r\nClearly this is a change very easy to implement but first I want to see if others would find it useful\
+    \ or not.\npytest --collect-only needs a one char shortcut command\nI find myself needing to run `--collect-only` very\
+    \ often and that cli argument is a very long to type one. \r\n\r\nI do think that it would be great to allocate a character\
+    \ for it, not sure which one yet. Please use up/down thumbs to vote if you would find it useful or not and eventually\
+    \ proposing which char should be used. \r\n\r\nClearly this is a change very easy to implement but first I want to see\
+    \ if others would find it useful or not.\n"
+  validation_command: python -m pytest testing/test_collection.py::TestCustomConftests::test_pytest_fs_collect_hooks_are_seen
+    testing/test_collection.py::TestCustomConftests::test_pytest_collect_file_from_sister_dir -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: sympy__sympy-18532
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/sympy__sympy-18532
+  prompt: "Fix the following issue in this repository. Run the relevant tests to verify your fix.\n\nexpr.atoms() should return\
+    \ objects with no args instead of subclasses of Atom\n`expr.atoms()` with no arguments returns subclasses of `Atom` in\
+    \ `expr`. But the correct definition of a leaf node should be that it has no `.args`. \n\nThis should be easy to fix,\
+    \ but one needs to check that this doesn't affect the performance. \n\n"
+  validation_command: python -m pytest sympy/codegen/tests/test_cnodes.py::test_sizeof sympy/core/tests/test_basic.py::test_atoms
+    -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: sympy__sympy-15308
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/sympy__sympy-15308
+  prompt: "Fix the following issue in this repository. Run the relevant tests to verify your fix.\n\nLaTeX printing for Matrix\
+    \ Expression\n```py\r\n>>> A = MatrixSymbol(\"A\", n, n)\r\n>>> latex(trace(A**2))\r\n'Trace(A**2)'\r\n```\r\n\r\nThe\
+    \ bad part is not only is Trace not recognized, but whatever printer is being used doesn't fallback to the LaTeX printer\
+    \ for the inner expression (it should be `A^2`). \n"
+  validation_command: python -m pytest sympy/printing/tests/test_latex.py::test_trace -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: sympy__sympy-23262
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/sympy__sympy-23262
+  prompt: "Fix the following issue in this repository. Run the relevant tests to verify your fix.\n\nPython code printer not\
+    \ respecting tuple with one element\nHi,\r\n\r\nThanks for the recent updates in SymPy! I'm trying to update my code to\
+    \ use SymPy 1.10 but ran into an issue with the Python code printer. MWE:\r\n\r\n\r\n```python\r\nimport inspect\r\nfrom\
+    \ sympy import lambdify\r\n\r\ninspect.getsource(lambdify([], tuple([1])))\r\n```\r\nSymPy 1.9 and under outputs:\r\n\
+    ```\r\n'def _lambdifygenerated():\\n    return (1,)\\n'\r\n```\r\n\r\nBut SymPy 1.10 gives\r\n\r\n```\r\n'def _lambdifygenerated():\\\
+    n    return (1)\\n'\r\n```\r\nNote the missing comma after `1` that causes an integer to be returned instead of a tuple.\
+    \ \r\n\r\nFor tuples with two or more elements, the generated code is correct:\r\n```python\r\ninspect.getsource(lambdify([],\
+    \ tuple([1, 2])))\r\n```\r\nIn SymPy  1.10 and under, outputs:\r\n\r\n```\r\n'def _lambdifygenerated():\\n    return (1,\
+    \ 2)\\n'\r\n```\r\nThis result is expected.\r\n\r\nNot sure if this is a regression. As this breaks my program which assumes\
+    \ the return type to always be a tuple, could you suggest a workaround from the code generation side? Thank you. \n"
+  validation_command: python -m pytest sympy/utilities/tests/test_lambdify.py::test_issue_14941 -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: sympy__sympy-13437
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/sympy__sympy-13437
+  prompt: 'Fix the following issue in this repository. Run the relevant tests to verify your fix.
+
+
+    bell(n).limit(n, oo) should be oo rather than bell(oo)
+
+    `bell(n).limit(n,oo)` should take the value infinity, but the current output is `bell(oo)`. As the Bell numbers represent
+    the number of partitions of a set, it seems natural that `bell(oo)` should be able to be evaluated rather than be returned
+    unevaluated. This issue is also in line with the recent fixes to the corresponding limit for the Fibonacci numbers and
+    Lucas numbers.
+
+
+    ```
+
+    from sympy import *
+
+    n = symbols(''n'')
+
+    bell(n).limit(n,oo)
+
+
+    Output:
+
+    bell(oo)
+
+    ```
+
+
+    I''m new to Sympy, so I''d appreciate the opportunity to fix this bug myself if that''s alright.
+
+
+    '
+  validation_command: python -m pytest sympy/functions/combinatorial/tests/test_comb_numbers.py::test_bell -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: sympy__sympy-13895
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/sympy__sympy-13895
+  prompt: "Fix the following issue in this repository. Run the relevant tests to verify your fix.\n\n(-x/4 - S(1)/12)**x -\
+    \ 1 simplifies to an inequivalent expression\n    >>> from sympy import *\r\n    >>> x = Symbol('x')\r\n    >>> e = (-x/4\
+    \ - S(1)/12)**x - 1\r\n    >>> e\r\n    (-x/4 - 1/12)**x - 1\r\n    >>> f = simplify(e)\r\n    >>> f\r\n    12**(-x)*(-12**x\
+    \ + (-3*x - 1)**x)\r\n    >>> a = S(9)/5\r\n    >>> simplify(e.subs(x,a))\r\n    -1 - 32*15**(1/5)*2**(2/5)/225\r\n  \
+    \  >>> simplify(f.subs(x,a))\r\n    -1 - 32*(-1)**(4/5)*60**(1/5)/225\r\n    >>> N(e.subs(x,a))\r\n    -1.32255049319339\r\
+    \n    >>> N(f.subs(x,a))\r\n    -0.739051169462523 - 0.189590423018741*I\r\n\r\n\n"
+  validation_command: python -m pytest sympy/core/tests/test_numbers.py::test_powers_Integer sympy/core/tests/test_numbers.py::test_issue_13890
+    -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: pylint-dev__pylint-7114
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/pylint-dev__pylint-7114
+  prompt: "Fix the following issue in this repository. Run the relevant tests to verify your fix.\n\nLinting fails if module\
+    \ contains module of the same name\n### Steps to reproduce\r\n\r\nGiven multiple files:\r\n```\r\n.\r\n`-- a/\r\n    |--\
+    \ a.py\r\n    `-- b.py\r\n```\r\nWhich are all empty, running `pylint a` fails:\r\n\r\n```\r\n$ pylint a\r\n*************\
+    \ Module a\r\na/__init__.py:1:0: F0010: error while code parsing: Unable to load file a/__init__.py:\r\n[Errno 2] No such\
+    \ file or directory: 'a/__init__.py' (parse-error)\r\n$\r\n```\r\n\r\nHowever, if I rename `a.py`, `pylint a` succeeds:\r\
+    \n\r\n```\r\n$ mv a/a.py a/c.py\r\n$ pylint a\r\n$\r\n```\r\nAlternatively, I can also `touch a/__init__.py`, but that\
+    \ shouldn't be necessary anymore.\r\n\r\n### Current behavior\r\n\r\nRunning `pylint a` if `a/a.py` is present fails while\
+    \ searching for an `__init__.py` file.\r\n\r\n### Expected behavior\r\n\r\nRunning `pylint a` if `a/a.py` is present should\
+    \ succeed.\r\n\r\n### pylint --version output\r\n\r\nResult of `pylint --version` output:\r\n\r\n```\r\npylint 3.0.0a3\r\
+    \nastroid 2.5.6\r\nPython 3.8.5 (default, Jan 27 2021, 15:41:15) \r\n[GCC 9.3.0]\r\n```\r\n\r\n### Additional info\r\n\
+    \r\nThis also has some side-effects in module resolution. For example, if I create another file `r.py`:\r\n\r\n```\r\n\
+    .\r\n|-- a\r\n|   |-- a.py\r\n|   `-- b.py\r\n`-- r.py\r\n```\r\n\r\nWith the content:\r\n\r\n```\r\nfrom a import b\r\
+    \n```\r\n\r\nRunning `pylint -E r` will run fine, but `pylint -E r a` will fail. Not just for module a, but for module\
+    \ r as well.\r\n\r\n```\r\n************* Module r\r\nr.py:1:0: E0611: No name 'b' in module 'a' (no-name-in-module)\r\n\
+    ************* Module a\r\na/__init__.py:1:0: F0010: error while code parsing: Unable to load file a/__init__.py:\r\n[Errno\
+    \ 2] No such file or directory: 'a/__init__.py' (parse-error)\r\n```\r\n\r\nAgain, if I rename `a.py` to `c.py`, `pylint\
+    \ -E r a` will work perfectly.\n"
+  validation_command: python -m pytest tests/lint/unittest_lint.py::test_identically_named_nested_module -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: pylint-dev__pylint-6506
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/pylint-dev__pylint-6506
+  prompt: "Fix the following issue in this repository. Run the relevant tests to verify your fix.\n\nTraceback printed for\
+    \ unrecognized option\n### Bug description\n\nA traceback is printed when an unrecognized option is passed to pylint.\n\
+    \n### Configuration\n\n_No response_\n\n### Command used\n\n```shell\npylint -Q\n```\n\n\n### Pylint output\n\n```shell\n\
+    ************* Module Command line\r\nCommand line:1:0: E0015: Unrecognized option found: Q (unrecognized-option)\r\nTraceback\
+    \ (most recent call last):\r\n  File \"/Users/markbyrne/venv310/bin/pylint\", line 33, in <module>\r\n    sys.exit(load_entry_point('pylint',\
+    \ 'console_scripts', 'pylint')())\r\n  File \"/Users/markbyrne/programming/pylint/pylint/__init__.py\", line 24, in run_pylint\r\
+    \n    PylintRun(argv or sys.argv[1:])\r\n  File \"/Users/markbyrne/programming/pylint/pylint/lint/run.py\", line 135,\
+    \ in __init__\r\n    args = _config_initialization(\r\n  File \"/Users/markbyrne/programming/pylint/pylint/config/config_initialization.py\"\
+    , line 85, in _config_initialization\r\n    raise _UnrecognizedOptionError(options=unrecognized_options)\r\npylint.config.exceptions._UnrecognizedOptionError\n\
+    ```\n\n\n### Expected behavior\n\nThe top part of the current output is handy:\r\n`Command line:1:0: E0015: Unrecognized\
+    \ option found: Q (unrecognized-option)`\r\n\r\nThe traceback I don't think is expected & not user-friendly.\r\nA usage\
+    \ tip, for example:\r\n```python\r\nmypy -Q\r\nusage: mypy [-h] [-v] [-V] [more options; see below]\r\n            [-m\
+    \ MODULE] [-p PACKAGE] [-c PROGRAM_TEXT] [files ...]\r\nmypy: error: unrecognized arguments: -Q\r\n```\n\n### Pylint version\n\
+    \n```shell\npylint 2.14.0-dev0\r\nastroid 2.11.3\r\nPython 3.10.0b2 (v3.10.0b2:317314165a, May 31 2021, 10:02:22) [Clang\
+    \ 12.0.5 (clang-1205.0.22.9)]\n```\n\n\n### OS / Environment\n\n_No response_\n\n### Additional dependencies\n\n_No response_\n"
+  validation_command: python -m pytest tests/config/test_config.py::test_unknown_option_name tests/config/test_config.py::test_unknown_short_option_name
+    -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: pylint-dev__pylint-7080
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/pylint-dev__pylint-7080
+  prompt: "Fix the following issue in this repository. Run the relevant tests to verify your fix.\n\n`--recursive=y` ignores\
+    \ `ignore-paths`\n### Bug description\r\n\r\nWhen running recursively, it seems `ignore-paths` in my settings in pyproject.toml\
+    \ is completely ignored\r\n\r\n### Configuration\r\n\r\n```ini\r\n[tool.pylint.MASTER]\r\nignore-paths = [\r\n  # Auto\
+    \ generated\r\n  \"^src/gen/.*$\",\r\n]\r\n```\r\n\r\n\r\n### Command used\r\n\r\n```shell\r\npylint --recursive=y src/\r\
+    \n```\r\n\r\n\r\n### Pylint output\r\n\r\n```shell\r\n************* Module region_selection\r\nsrc\\region_selection.py:170:0:\
+    \ R0914: Too many local variables (17/15) (too-many-locals)\r\n************* Module about\r\nsrc\\gen\\about.py:2:0: R2044:\
+    \ Line with empty comment (empty-comment)\r\nsrc\\gen\\about.py:4:0: R2044: Line with empty comment (empty-comment)\r\n\
+    src\\gen\\about.py:57:0: C0301: Line too long (504/120) (line-too-long)\r\nsrc\\gen\\about.py:12:0: C0103: Class name\
+    \ \"Ui_AboutAutoSplitWidget\" doesn't conform to '_?_?[a-zA-Z]+?$' pattern (invalid-name)\r\nsrc\\gen\\about.py:12:0:\
+    \ R0205: Class 'Ui_AboutAutoSplitWidget' inherits from object, can be safely removed from bases in python3 (useless-object-inheritance)\r\
+    \nsrc\\gen\\about.py:13:4: C0103: Method name \"setupUi\" doesn't conform to snake_case naming style (invalid-name)\r\n\
+    src\\gen\\about.py:13:22: C0103: Argument name \"AboutAutoSplitWidget\" doesn't conform to snake_case naming style (invalid-name)\r\
+    \nsrc\\gen\\about.py:53:4: C0103: Method name \"retranslateUi\" doesn't conform to snake_case naming style (invalid-name)\r\
+    \nsrc\\gen\\about.py:53:28: C0103: Argument name \"AboutAutoSplitWidget\" doesn't conform to snake_case naming style (invalid-name)\r\
+    \nsrc\\gen\\about.py:24:8: W0201: Attribute 'ok_button' defined outside __init__ (attribute-defined-outside-init)\r\n\
+    src\\gen\\about.py:27:8: W0201: Attribute 'created_by_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\about.py:30:8: W0201: Attribute 'version_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\about.py:33:8: W0201: Attribute 'donate_text_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\about.py:37:8: W0201: Attribute 'donate_button_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\about.py:43:8: W0201: Attribute 'icon_label' defined outside __init__ (attribute-defined-outside-init)\r\n\
+    ************* Module design\r\nsrc\\gen\\design.py:2:0: R2044: Line with empty comment (empty-comment)\r\nsrc\\gen\\design.py:4:0:\
+    \ R2044: Line with empty comment (empty-comment)\r\nsrc\\gen\\design.py:328:0: C0301: Line too long (123/120) (line-too-long)\r\
+    \nsrc\\gen\\design.py:363:0: C0301: Line too long (125/120) (line-too-long)\r\nsrc\\gen\\design.py:373:0: C0301: Line\
+    \ too long (121/120) (line-too-long)\r\nsrc\\gen\\design.py:412:0: C0301: Line too long (131/120) (line-too-long)\r\n\
+    src\\gen\\design.py:12:0: C0103: Class name \"Ui_MainWindow\" doesn't conform to '_?_?[a-zA-Z]+?$' pattern (invalid-name)\r\
+    \nsrc\\gen\\design.py:308:8: C0103: Attribute name \"actionSplit_Settings\" doesn't conform to snake_case naming style\
+    \ (invalid-name)\r\nsrc\\gen\\design.py:318:8: C0103: Attribute name \"actionCheck_for_Updates_on_Open\" doesn't conform\
+    \ to snake_case naming style (invalid-name)\r\nsrc\\gen\\design.py:323:8: C0103: Attribute name \"actionLoop_Last_Split_Image_To_First_Image\"\
+    \ doesn't conform to snake_case naming style (invalid-name)\r\nsrc\\gen\\design.py:325:8: C0103: Attribute name \"actionAuto_Start_On_Reset\"\
+    \ doesn't conform to snake_case naming style (invalid-name)\r\nsrc\\gen\\design.py:327:8: C0103: Attribute name \"actionGroup_dummy_splits_when_undoing_skipping\"\
+    \ doesn't conform to snake_case naming style (invalid-name)\r\nsrc\\gen\\design.py:12:0: R0205: Class 'Ui_MainWindow'\
+    \ inherits from object, can be safely removed from bases in python3 (useless-object-inheritance)\r\nsrc\\gen\\design.py:12:0:\
+    \ R0902: Too many instance attributes (69/15) (too-many-instance-attributes)\r\nsrc\\gen\\design.py:13:4: C0103: Method\
+    \ name \"setupUi\" doesn't conform to snake_case naming style (invalid-name)\r\nsrc\\gen\\design.py:13:22: C0103: Argument\
+    \ name \"MainWindow\" doesn't conform to snake_case naming style (invalid-name)\r\nsrc\\gen\\design.py:16:8: C0103: Variable\
+    \ name \"sizePolicy\" doesn't conform to snake_case naming style (invalid-name)\r\nsrc\\gen\\design.py:13:4: R0915: Too\
+    \ many statements (339/50) (too-many-statements)\r\nsrc\\gen\\design.py:354:4: C0103: Method name \"retranslateUi\" doesn't\
+    \ conform to snake_case naming style (invalid-name)\r\nsrc\\gen\\design.py:354:28: C0103: Argument name \"MainWindow\"\
+    \ doesn't conform to snake_case naming style (invalid-name)\r\nsrc\\gen\\design.py:354:4: R0915: Too many statements (61/50)\
+    \ (too-many-statements)\r\nsrc\\gen\\design.py:31:8: W0201: Attribute 'central_widget' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:33:8: W0201: Attribute 'x_label' defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\\
+    gen\\design.py:36:8: W0201: Attribute 'select_region_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:40:8: W0201: Attribute 'start_auto_splitter_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:44:8: W0201: Attribute 'reset_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:49:8: W0201: Attribute 'undo_split_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:54:8: W0201: Attribute 'skip_split_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:59:8: W0201: Attribute 'check_fps_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:63:8: W0201: Attribute 'fps_label' defined outside __init__ (attribute-defined-outside-init)\r\n\
+    src\\gen\\design.py:66:8: W0201: Attribute 'live_image' defined outside __init__ (attribute-defined-outside-init)\r\n\
+    src\\gen\\design.py:75:8: W0201: Attribute 'current_split_image' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:81:8: W0201: Attribute 'current_image_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:85:8: W0201: Attribute 'width_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:88:8: W0201: Attribute 'height_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:91:8: W0201: Attribute 'fps_value_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:95:8: W0201: Attribute 'width_spinbox' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:101:8: W0201: Attribute 'height_spinbox' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:107:8: W0201: Attribute 'capture_region_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:111:8: W0201: Attribute 'current_image_file_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:115:8: W0201: Attribute 'take_screenshot_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:119:8: W0201: Attribute 'x_spinbox' defined outside __init__ (attribute-defined-outside-init)\r\n\
+    src\\gen\\design.py:128:8: W0201: Attribute 'y_spinbox' defined outside __init__ (attribute-defined-outside-init)\r\n\
+    src\\gen\\design.py:136:8: W0201: Attribute 'y_label' defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\\
+    gen\\design.py:139:8: W0201: Attribute 'align_region_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:143:8: W0201: Attribute 'select_window_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:147:8: W0201: Attribute 'browse_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:151:8: W0201: Attribute 'split_image_folder_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:154:8: W0201: Attribute 'split_image_folder_input' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:158:8: W0201: Attribute 'capture_region_window_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:162:8: W0201: Attribute 'image_loop_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:165:8: W0201: Attribute 'similarity_viewer_groupbox' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:169:8: W0201: Attribute 'table_live_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:173:8: W0201: Attribute 'table_highest_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:177:8: W0201: Attribute 'table_threshold_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:181:8: W0201: Attribute 'line_1' defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\\
+    gen\\design.py:186:8: W0201: Attribute 'table_current_image_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:189:8: W0201: Attribute 'table_reset_image_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:192:8: W0201: Attribute 'line_2' defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\\
+    gen\\design.py:197:8: W0201: Attribute 'line_3' defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\gen\\\
+    design.py:202:8: W0201: Attribute 'line_4' defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\gen\\design.py:207:8:\
+    \ W0201: Attribute 'line_5' defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\gen\\design.py:212:8: W0201:\
+    \ Attribute 'table_current_image_live_label' defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\gen\\design.py:216:8:\
+    \ W0201: Attribute 'table_current_image_highest_label' defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\\
+    gen\\design.py:220:8: W0201: Attribute 'table_current_image_threshold_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:224:8: W0201: Attribute 'table_reset_image_live_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:228:8: W0201: Attribute 'table_reset_image_highest_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:232:8: W0201: Attribute 'table_reset_image_threshold_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:236:8: W0201: Attribute 'reload_start_image_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:240:8: W0201: Attribute 'start_image_status_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:243:8: W0201: Attribute 'start_image_status_value_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:246:8: W0201: Attribute 'image_loop_value_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:249:8: W0201: Attribute 'previous_image_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:254:8: W0201: Attribute 'next_image_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:296:8: W0201: Attribute 'menu_bar' defined outside __init__ (attribute-defined-outside-init)\r\n\
+    src\\gen\\design.py:299:8: W0201: Attribute 'menu_help' defined outside __init__ (attribute-defined-outside-init)\r\n\
+    src\\gen\\design.py:301:8: W0201: Attribute 'menu_file' defined outside __init__ (attribute-defined-outside-init)\r\n\
+    src\\gen\\design.py:304:8: W0201: Attribute 'action_view_help' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:306:8: W0201: Attribute 'action_about' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:308:8: W0201: Attribute 'actionSplit_Settings' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:310:8: W0201: Attribute 'action_save_profile' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:312:8: W0201: Attribute 'action_load_profile' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:314:8: W0201: Attribute 'action_save_profile_as' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:316:8: W0201: Attribute 'action_check_for_updates' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:318:8: W0201: Attribute 'actionCheck_for_Updates_on_Open' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:323:8: W0201: Attribute 'actionLoop_Last_Split_Image_To_First_Image' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:325:8: W0201: Attribute 'actionAuto_Start_On_Reset' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\design.py:327:8: W0201: Attribute 'actionGroup_dummy_splits_when_undoing_skipping' defined outside __init__\
+    \ (attribute-defined-outside-init)\r\nsrc\\gen\\design.py:329:8: W0201: Attribute 'action_settings' defined outside __init__\
+    \ (attribute-defined-outside-init)\r\nsrc\\gen\\design.py:331:8: W0201: Attribute 'action_check_for_updates_on_open' defined\
+    \ outside __init__ (attribute-defined-outside-init)\r\n************* Module resources_rc\r\nsrc\\gen\\resources_rc.py:1:0:\
+    \ C0302: Too many lines in module (2311/1000) (too-many-lines)\r\nsrc\\gen\\resources_rc.py:8:0: C0103: Constant name\
+    \ \"qt_resource_data\" doesn't conform to UPPER_CASE naming style (invalid-name)\r\nsrc\\gen\\resources_rc.py:2278:0:\
+    \ C0103: Constant name \"qt_resource_name\" doesn't conform to UPPER_CASE naming style (invalid-name)\r\nsrc\\gen\\resources_rc.py:2294:0:\
+    \ C0103: Constant name \"qt_resource_struct\" doesn't conform to UPPER_CASE naming style (invalid-name)\r\nsrc\\gen\\\
+    resources_rc.py:2305:0: C0103: Function name \"qInitResources\" doesn't conform to snake_case naming style (invalid-name)\r\
+    \nsrc\\gen\\resources_rc.py:2308:0: C0103: Function name \"qCleanupResources\" doesn't conform to snake_case naming style\
+    \ (invalid-name)\r\n************* Module settings\r\nsrc\\gen\\settings.py:2:0: R2044: Line with empty comment (empty-comment)\r\
+    \nsrc\\gen\\settings.py:4:0: R2044: Line with empty comment (empty-comment)\r\nsrc\\gen\\settings.py:61:0: C0301: Line\
+    \ too long (158/120) (line-too-long)\r\nsrc\\gen\\settings.py:123:0: C0301: Line too long (151/120) (line-too-long)\r\n\
+    src\\gen\\settings.py:209:0: C0301: Line too long (162/120) (line-too-long)\r\nsrc\\gen\\settings.py:214:0: C0301: Line\
+    \ too long (121/120) (line-too-long)\r\nsrc\\gen\\settings.py:221:0: C0301: Line too long (177/120) (line-too-long)\r\n\
+    src\\gen\\settings.py:223:0: C0301: Line too long (181/120) (line-too-long)\r\nsrc\\gen\\settings.py:226:0: C0301: Line\
+    \ too long (461/120) (line-too-long)\r\nsrc\\gen\\settings.py:228:0: C0301: Line too long (192/120) (line-too-long)\r\n\
+    src\\gen\\settings.py:12:0: C0103: Class name \"Ui_DialogSettings\" doesn't conform to '_?_?[a-zA-Z]+?$' pattern (invalid-name)\r\
+    \nsrc\\gen\\settings.py:12:0: R0205: Class 'Ui_DialogSettings' inherits from object, can be safely removed from bases\
+    \ in python3 (useless-object-inheritance)\r\nsrc\\gen\\settings.py:12:0: R0902: Too many instance attributes (35/15) (too-many-instance-attributes)\r\
+    \nsrc\\gen\\settings.py:13:4: C0103: Method name \"setupUi\" doesn't conform to snake_case naming style (invalid-name)\r\
+    \nsrc\\gen\\settings.py:13:22: C0103: Argument name \"DialogSettings\" doesn't conform to snake_case naming style (invalid-name)\r\
+    \nsrc\\gen\\settings.py:16:8: C0103: Variable name \"sizePolicy\" doesn't conform to snake_case naming style (invalid-name)\r\
+    \nsrc\\gen\\settings.py:13:4: R0915: Too many statements (190/50) (too-many-statements)\r\nsrc\\gen\\settings.py:205:4:\
+    \ C0103: Method name \"retranslateUi\" doesn't conform to snake_case naming style (invalid-name)\r\nsrc\\gen\\settings.py:205:28:\
+    \ C0103: Argument name \"DialogSettings\" doesn't conform to snake_case naming style (invalid-name)\r\nsrc\\gen\\settings.py:26:8:\
+    \ W0201: Attribute 'capture_settings_groupbox' defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\gen\\\
+    settings.py:29:8: W0201: Attribute 'fps_limit_spinbox' defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\\
+    gen\\settings.py:36:8: W0201: Attribute 'fps_limit_label' defined outside __init__ (attribute-defined-outside-init)\r\n\
+    src\\gen\\settings.py:40:8: W0201: Attribute 'live_capture_region_checkbox' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:46:8: W0201: Attribute 'capture_method_combobox' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:49:8: W0201: Attribute 'capture_method_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:52:8: W0201: Attribute 'capture_device_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:55:8: W0201: Attribute 'capture_device_combobox' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:59:8: W0201: Attribute 'image_settings_groupbox' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:65:8: W0201: Attribute 'default_comparison_method' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:73:8: W0201: Attribute 'default_comparison_method_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:76:8: W0201: Attribute 'default_pause_time_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:80:8: W0201: Attribute 'default_pause_time_spinbox' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:87:8: W0201: Attribute 'default_similarity_threshold_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:92:8: W0201: Attribute 'default_similarity_threshold_spinbox' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:98:8: W0201: Attribute 'loop_splits_checkbox' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:104:8: W0201: Attribute 'custom_image_settings_info_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:111:8: W0201: Attribute 'default_delay_time_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:116:8: W0201: Attribute 'default_delay_time_spinbox' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:121:8: W0201: Attribute 'hotkeys_groupbox' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:127:8: W0201: Attribute 'set_pause_hotkey_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:131:8: W0201: Attribute 'split_input' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:137:8: W0201: Attribute 'undo_split_input' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:143:8: W0201: Attribute 'split_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:146:8: W0201: Attribute 'reset_input' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:152:8: W0201: Attribute 'set_undo_split_hotkey_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:156:8: W0201: Attribute 'reset_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:159:8: W0201: Attribute 'set_reset_hotkey_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:163:8: W0201: Attribute 'set_split_hotkey_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:167:8: W0201: Attribute 'pause_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:170:8: W0201: Attribute 'pause_input' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:176:8: W0201: Attribute 'undo_split_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:179:8: W0201: Attribute 'set_skip_split_hotkey_button' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:183:8: W0201: Attribute 'skip_split_label' defined outside __init__ (attribute-defined-outside-init)\r\
+    \nsrc\\gen\\settings.py:186:8: W0201: Attribute 'skip_split_input' defined outside __init__ (attribute-defined-outside-init)\r\
+    \n************* Module update_checker\r\nsrc\\gen\\update_checker.py:2:0: R2044: Line with empty comment (empty-comment)\r\
+    \nsrc\\gen\\update_checker.py:4:0: R2044: Line with empty comment (empty-comment)\r\nsrc\\gen\\update_checker.py:12:0:\
+    \ C0103: Class name \"Ui_UpdateChecker\" doesn't conform to '_?_?[a-zA-Z]+?$' pattern (invalid-name)\r\nsrc\\gen\\update_checker.py:12:0:\
+    \ R0205: Class 'Ui_UpdateChecker' inherits from object, can be safely removed from bases in python3 (useless-object-inheritance)\r\
+    \nsrc\\gen\\update_checker.py:13:4: C0103: Method name \"setupUi\" doesn't conform to snake_case naming style (invalid-name)\r\
+    \nsrc\\gen\\update_checker.py:13:22: C0103: Argument name \"UpdateChecker\" doesn't conform to snake_case naming style\
+    \ (invalid-name)\r\nsrc\\gen\\update_checker.py:17:8: C0103: Variable name \"sizePolicy\" doesn't conform to snake_case\
+    \ naming style (invalid-name)\r\nsrc\\gen\\update_checker.py:33:8: C0103: Variable name \"sizePolicy\" doesn't conform\
+    \ to snake_case naming style (invalid-name)\r\nsrc\\gen\\update_checker.py:13:4: R0915: Too many statements (56/50) (too-many-statements)\r\
+    \nsrc\\gen\\update_checker.py:71:4: C0103: Method name \"retranslateUi\" doesn't conform to snake_case naming style (invalid-name)\r\
+    \nsrc\\gen\\update_checker.py:71:28: C0103: Argument name \"UpdateChecker\" doesn't conform to snake_case naming style\
+    \ (invalid-name)\r\nsrc\\gen\\update_checker.py:31:8: W0201: Attribute 'update_status_label' defined outside __init__\
+    \ (attribute-defined-outside-init)\r\nsrc\\gen\\update_checker.py:39:8: W0201: Attribute 'current_version_label' defined\
+    \ outside __init__ (attribute-defined-outside-init)\r\nsrc\\gen\\update_checker.py:42:8: W0201: Attribute 'latest_version_label'\
+    \ defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\gen\\update_checker.py:45:8: W0201: Attribute 'go_to_download_label'\
+    \ defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\gen\\update_checker.py:48:8: W0201: Attribute 'left_button'\
+    \ defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\gen\\update_checker.py:52:8: W0201: Attribute 'right_button'\
+    \ defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\gen\\update_checker.py:55:8: W0201: Attribute 'current_version_number_label'\
+    \ defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\gen\\update_checker.py:59:8: W0201: Attribute 'latest_version_number_label'\
+    \ defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\gen\\update_checker.py:63:8: W0201: Attribute 'do_not_ask_again_checkbox'\
+    \ defined outside __init__ (attribute-defined-outside-init)\r\nsrc\\gen\\update_checker.py:1:0: R0401: Cyclic import (region_capture\
+    \ -> region_selection) (cyclic-import)\r\nsrc\\gen\\update_checker.py:1:0: R0401: Cyclic import (error_messages -> user_profile\
+    \ -> region_capture -> region_selection) (cyclic-import)\r\nsrc\\gen\\update_checker.py:1:0: R0401: Cyclic import (AutoSplitImage\
+    \ -> split_parser) (cyclic-import)\r\nsrc\\gen\\update_checker.py:1:0: R0401: Cyclic import (AutoControlledWorker -> error_messages\
+    \ -> AutoSplit) (cyclic-import)\r\nsrc\\gen\\update_checker.py:1:0: R0401: Cyclic import (AutoSplit -> user_profile ->\
+    \ region_capture -> region_selection -> error_messages) (cyclic-import)\r\nsrc\\gen\\update_checker.py:1:0: R0401: Cyclic\
+    \ import (AutoSplitImage -> error_messages -> user_profile) (cyclic-import)\r\nsrc\\gen\\update_checker.py:1:0: R0401:\
+    \ Cyclic import (AutoSplit -> menu_bar -> user_profile -> region_capture -> region_selection -> error_messages) (cyclic-import)\r\
+    \nsrc\\gen\\update_checker.py:1:0: R0401: Cyclic import (AutoSplit -> region_selection -> error_messages) (cyclic-import)\r\
+    \nsrc\\gen\\update_checker.py:1:0: R0401: Cyclic import (AutoSplit -> error_messages) (cyclic-import)\r\nsrc\\gen\\update_checker.py:1:0:\
+    \ R0401: Cyclic import (error_messages -> user_profile -> region_selection) (cyclic-import)\r\nsrc\\gen\\update_checker.py:1:0:\
+    \ R0401: Cyclic import (error_messages -> user_profile) (cyclic-import)\r\nsrc\\gen\\update_checker.py:1:0: R0401: Cyclic\
+    \ import (AutoSplitImage -> split_parser -> error_messages -> user_profile) (cyclic-import)\r\nsrc\\gen\\update_checker.py:1:0:\
+    \ R0401: Cyclic import (AutoSplit -> menu_bar -> region_selection -> error_messages) (cyclic-import)\r\nsrc\\gen\\update_checker.py:1:0:\
+    \ R0401: Cyclic import (AutoSplit -> menu_bar -> error_messages) (cyclic-import)\r\n\r\n--------------------------------------------------------------------------\r\
+    \nYour code has been rated at -158.32/10 (previous run: -285.20/10, +126.88)\r\n```\r\n\r\n\r\n### Expected behavior\r\
+    \n\r\nsrc\\gen\\* should not be checked\r\n\r\n### Pylint version\r\n\r\n```shell\r\npylint 2.14.1\r\nastroid 2.11.5\r\
+    \nPython 3.9.6 (tags/v3.9.6:db3ff76, Jun 28 2021, 15:26:21) [MSC v.1929 64 bit (AMD64)]\r\n```\r\n\r\n\r\n### OS / Environment\r\
+    \n\r\nWindows 10.0.19044\r\n\r\n\r\n### Additional dependencies\r\n\r\n_No response_\n"
+  validation_command: python -m pytest tests/test_self.py::TestRunTC::test_ignore_path_recursive_current_dir -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: psf__requests-3362
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/psf__requests-3362
+  prompt: 'Fix the following issue in this repository. Run the relevant tests to verify your fix.
+
+
+    Uncertain about content/text vs iter_content(decode_unicode=True/False)
+
+    When requesting an application/json document, I''m seeing `next(r.iter_content(16*1024, decode_unicode=True))` returning
+    bytes, whereas `r.text` returns unicode. My understanding was that both should return a unicode object. In essence, I
+    thought "iter_content" was equivalent to "iter_text" when decode_unicode was True. Have I misunderstood something? I can
+    provide an example if needed.
+
+
+    For reference, I''m using python 3.5.1 and requests 2.10.0.
+
+
+    Thanks!
+
+
+    '
+  validation_command: python -m pytest tests/test_requests.py::TestRequests::test_response_decode_unicode -x
+  expected_min_calls: 5
+  source: swe-bench-lite
+- task_id: pallets__flask-4045
+  phase: 0
+  type: bugfix
+  language: python
+  repo: tasks/repos/pallets__flask-4045
+  prompt: 'Fix the following issue in this repository. Run the relevant tests to verify your fix.
+
+
+    Raise error when blueprint name contains a dot
+
+    This is required since every dot is now significant since blueprints can be nested. An error was already added for endpoint
+    names in 1.0, but should have been added for this as well.
+
+    '
+  validation_command: python -m pytest tests/test_blueprints.py::test_dotted_name_not_allowed tests/test_blueprints.py::test_route_decorator_custom_endpoint_with_dots
+    -x
+  expected_min_calls: 5
+  source: swe-bench-lite

@@ -1,0 +1,50 @@
+[
+  {
+    "instance_id": "psf__requests-2317",
+    "repo": "psf/requests",
+    "base_commit": "091991be0da19de9108dbe5e3752917fea3d7fdc",
+    "problem_statement": "method = builtin_str(method) problem\nIn requests/sessions.py is a command:\n\nmethod = builtin_str(method)\nConverts method from\nb\u2019GET\u2019\nto\n\"b'GET\u2019\"\n\nWhich is the literal string, no longer a binary string.  When requests tries to use the method \"b'GET\u2019\u201d, it gets a 404 Not Found response.\n\nI am using python3.4 and python-neutronclient (2.3.9) with requests (2.4.3).  neutronclient is broken because it uses this \"args = utils.safe_encode_list(args)\" command which converts all the values to binary strin",
+    "fail_to_pass": "[\"test_requests.py::RequestsTestCase::test_HTTP_302_ALLOW_REDIRECT_GET\", \"test_requests.py::RequestsTestCase::test_POSTBIN_GET_POST_FILES\", \"test_requests.py::RequestsTestCase::test_POSTBIN_GET_POST_FILES_WITH_DATA\", \"test_requests.py::RequestsTestCase::test_basicauth_with_netrc\", \"test_requests.py::RequestsTestCase::test_json_param_post_content_type_works\", \"test_requests.py::RequestsTestCase::test_manual_redirect_with_partial_body_read\", \"test_requests.py::RequestsTestCase::test_requests_history_is_saved\", \"test_requests.py::TestTimeout::test_encoded_methods\"]",
+    "test_patch": "diff --git a/test_requests.py b/test_requests.py\n--- a/test_requests.py\n+++ b/test_requests.py\n@@ -1389,6 +1389,11 @@ def test_total_timeout_connect(self):\n         except ConnectTimeout:\n            ..."
+  },
+  {
+    "instance_id": "pytest-dev__pytest-5413",
+    "repo": "pytest-dev/pytest",
+    "base_commit": "450d2646233c670654744d3d24330b69895bb9d2",
+    "problem_statement": "str() on the pytest.raises context variable doesn't behave same as normal exception catch\nPytest 4.6.2, macOS 10.14.5\r\n\r\n```Python\r\ntry:\r\n    raise LookupError(\r\n        f\"A\\n\"\r\n        f\"B\\n\"\r\n        f\"C\"\r\n    )\r\nexcept LookupError as e:\r\n    print(str(e))\r\n```\r\nprints\r\n\r\n> A\r\n> B\r\n> C\r\n\r\nBut\r\n\r\n```Python\r\nwith pytest.raises(LookupError) as e:\r\n    raise LookupError(\r\n        f\"A\\n\"\r\n        f\"B\\n\"\r\n        f\"C\"\r\n    )\r\n\r\nprint(str(e))\r\n```\r\n\r\nprints\r\n\r\n> <console>:3: LookupError: A\r\n\r\nIn orde",
+    "fail_to_pass": "[\"testing/code/test_excinfo.py::test_excinfo_repr_str\"]",
+    "test_patch": "diff --git a/testing/code/test_excinfo.py b/testing/code/test_excinfo.py\n--- a/testing/code/test_excinfo.py\n+++ b/testing/code/test_excinfo.py\n@@ -333,18 +333,10 @@ def test_excinfo_exconly():\n     as..."
+  },
+  {
+    "instance_id": "pytest-dev__pytest-7432",
+    "repo": "pytest-dev/pytest",
+    "base_commit": "e6e300e729dd33956e5448d8be9a0b1540b4e53a",
+    "problem_statement": "skipping: --runxfail breaks pytest.mark.skip location reporting\npytest versions: 5.4.x, current master\r\n\r\nWhen `@pytest.mark.skip`/`skipif` marks are used to skip a test, for example\r\n\r\n```py\r\nimport pytest\r\n@pytest.mark.skip\r\ndef test_skip_location() -> None:\r\n    assert 0\r\n```\r\n\r\nthe expected skip location reported should point to the item itself, and this is indeed what happens when running with `pytest -rs`:\r\n\r\n```\r\nSKIPPED [1] test_it.py:3: unconditional skip\r\n```\r\n\r\nHowever, adding `pytest",
+    "fail_to_pass": "[\"testing/test_skipping.py::TestXFail::test_xfail_run_with_skip_mark[test_input1-expected1]\"]",
+    "test_patch": "diff --git a/testing/test_skipping.py b/testing/test_skipping.py\n--- a/testing/test_skipping.py\n+++ b/testing/test_skipping.py\n@@ -235,6 +235,31 @@ def test_func2():\n             [\"*def test_func():*\"..."
+  },
+  {
+    "instance_id": "pytest-dev__pytest-8365",
+    "repo": "pytest-dev/pytest",
+    "base_commit": "4964b468c83c06971eb743fbc57cc404f760c573",
+    "problem_statement": "tmpdir creation fails when the username contains illegal characters for directory names\n`tmpdir`, `tmpdir_factory` and `tmp_path_factory` rely on `getpass.getuser()` for determining the `basetemp` directory. I found that the user name returned by `getpass.getuser()` may return characters that are not allowed for directory names. This may lead to errors while creating the temporary directory.\r\n\r\nThe situation in which I reproduced this issue was while being logged in through an ssh connection int",
+    "fail_to_pass": "[\"testing/test_tmpdir.py::test_tmp_path_factory_handles_invalid_dir_characters\"]",
+    "test_patch": "diff --git a/testing/test_tmpdir.py b/testing/test_tmpdir.py\n--- a/testing/test_tmpdir.py\n+++ b/testing/test_tmpdir.py\n@@ -11,6 +11,7 @@\n import pytest\n from _pytest import pathlib\n from _pytest.confi..."
+  },
+  {
+    "instance_id": "sympy__sympy-18057",
+    "repo": "sympy/sympy",
+    "base_commit": "62000f37b8821573ba00280524ffb4ac4a380875",
+    "problem_statement": "Sympy incorrectly attempts to eval reprs in its __eq__ method\nPassing strings produced by unknown objects into eval is **very bad**. It is especially surprising for an equality check to trigger that kind of behavior. This should be fixed ASAP.\r\n\r\nRepro code:\r\n\r\n```\r\nimport sympy\r\nclass C:\r\n    def __repr__(self):\r\n        return 'x.y'\r\n_ = sympy.Symbol('x') == C()\r\n```\r\n\r\nResults in:\r\n\r\n```\r\nE   AttributeError: 'Symbol' object has no attribute 'y'\r\n```\r\n\r\nOn the line:\r\n\r\n```\r\n    expr = eval(\r\n ",
+    "fail_to_pass": "[\"test_var\"]",
+    "test_patch": "diff --git a/sympy/core/tests/test_expr.py b/sympy/core/tests/test_expr.py\n--- a/sympy/core/tests/test_expr.py\n+++ b/sympy/core/tests/test_expr.py\n@@ -1903,3 +1903,24 @@ def test_ExprBuilder():\n     e..."
+  },
+  {
+    "instance_id": "sympy__sympy-21612",
+    "repo": "sympy/sympy",
+    "base_commit": "b4777fdcef467b7132c055f8ac2c9a5059e6a145",
+    "problem_statement": "Latex parsing of fractions yields wrong expression due to missing brackets\nProblematic latex expression: `\"\\\\frac{\\\\frac{a^3+b}{c}}{\\\\frac{1}{c^2}}\"`\r\n\r\nis parsed to: `((a**3 + b)/c)/1/(c**2)`.\r\n\r\nExpected is: `((a**3 + b)/c)/(1/(c**2))`. \r\n\r\nThe missing brackets in the denominator result in a wrong expression.\r\n\r\n## Tested on\r\n\r\n- 1.8\r\n- 1.6.2\r\n\r\n## Reproduce:\r\n\r\n```\r\nroot@d31ef1c26093:/# python3\r\nPython 3.6.9 (default, Jan 26 2021, 15:33:00)\r\n[GCC 8.4.0] on linux\r\nType \"help\", \"copyright\", \"cr",
+    "fail_to_pass": "[\"test_Mul\"]",
+    "test_patch": "diff --git a/sympy/printing/tests/test_str.py b/sympy/printing/tests/test_str.py\n--- a/sympy/printing/tests/test_str.py\n+++ b/sympy/printing/tests/test_str.py\n@@ -252,6 +252,8 @@ def test_Mul():\n     ..."
+  }
+]

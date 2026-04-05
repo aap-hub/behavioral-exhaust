@@ -1,0 +1,16 @@
+# Codex Audit — Cycle 2
+# 2026-03-29T03:35:43.666337+00:00
+
+1. P0: Fake atomicity in storage. [`src/runner.py`](/Users/al/projects/uga-harness/src/runner.py#L374) opens `BEGIN`, but [`src/db.py`](/Users/al/projects/uga-harness/src/db.py#L197) and [`src/db.py`](/Users/al/projects/uga-harness/src/db.py#L225) `commit()` inside `insert_run`/`insert_tool_call`. A mid-loop failure leaves partially committed `runs`/`tool_calls`, so counts and records can silently diverge.
+
+2. P1: Reasoning is misattributed for mixed assistant messages. [`src/trace_collector.py`](/Users/al/projects/uga-harness/src/trace_collector.py#L400) concatenates all text blocks in the message, then [`src/trace_collector.py`](/Users/al/projects/uga-harness/src/trace_collector.py#L429) assigns that same `full_reasoning` to every tool call in the message. If content is `text -> tool_use -> text -> tool_use`, both calls get both texts. That corrupts per-call features and labels.
+
+3. P1: Bash read-only/state-modifying classification has concrete false negatives. [`src/trace_collector.py`](/Users/al/projects/uga-harness/src/trace_collector.py#L52) marks `xargs` read-only, so standalone `xargs rm`/`xargs sed -i` is missed. [`src/trace_collector.py`](/Users/al/projects/uga-harness/src/trace_collector.py#L108) treats `python -c`/`node -e` as read-only unless a short denylist hits; arbitrary mutating one-liners slip through. [`src/trace_collector.py`](/Users/al/projects/uga-harness/src/trace_collector.py#L167) also misses redirections at command start like `> file`.
+
+4. P1: Validation patch extraction drops real changes. [`src/swebench_validate.py`](/Users/al/projects/uga-harness/src/swebench_validate.py#L42) only replays `Write`/`Edit`, ignoring file mutations done via `Bash` (`sed -i`, `mv`, `patch`, heredocs, etc.), so successful runs can become `no patch extracted` / false unresolved in both SWE-bench and Docker validation.
+
+5. P1: Patch replay silently loses edits. [`src/swebench_validate.py`](/Users/al/projects/uga-harness/src/swebench_validate.py#L106) applies each `Edit` only if `old_string in modified`; otherwise it skips with no error. Any context drift or repeated substring mismatch yields truncated patches and bad validation labels.
+
+6. P2: Call-level analysis is statistically invalid but still emitted as a result. [`src/analysis.py`](/Users/al/projects/uga-harness/src/analysis.py#L299) repeats run-level `task_success` onto every call and then computes Spearman/p-values over call rows at [`src/analysis.py`](/Users/al/projects/uga-harness/src/analysis.py#L352). The warning at [`src/analysis.py`](/Users/al/projects/uga-harness/src/analysis.py#L329) is correct: n and significance are inflated, so those reported correlations are not valid inference.
+
+7. P2: `prior_failure_streak` is biased toward undercounting failures. [`src/analysis.py`](/Users/al/projects/uga-harness/src/analysis.py#L103) treats unparseable or missing `tool_result_json` as success at [`src/analysis.py`](/Users/al/projects/uga-harness/src/analysis.py#L109) and [`src/analysis.py`](/Users/al/projects/uga-harness/src/analysis.py#L111). Any dropped/malformed tool result silently suppresses failure streaks.

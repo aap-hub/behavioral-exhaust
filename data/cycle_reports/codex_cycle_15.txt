@@ -1,0 +1,35 @@
+# Codex Audit — Cycle 15
+# 2026-03-29T09:43:43.889098+00:00
+
+P0. `src/db.py:200`, `src/db.py:248`, `src/runner.py:374-381`  
+`insert_run()` and `insert_tool_call()` call `conn.commit()` internally, so `run_task()`’s claimed single transaction is false. A failure after the run row commit but before all tool-call inserts leaves a partially written run with silent dropped `tool_calls` and inconsistent counts.
+
+P0. `src/swebench_validate.py:102-109`  
+`extract_patch_from_stream()` replays `Edit` calls by doing `str.replace(old, new, 1)` only if `old` exists. If the targeted occurrence is not the first match, or prior edits changed context, it silently produces the wrong patch while still returning a valid diff. That corrupts downstream validation labels.
+
+P1. `src/trace_collector.py:196-197`, `src/trace_collector.py:199-215`  
+`sed` and `find` are unreachable because `READ_ONLY_COMMANDS` already includes `awk`/`grep`/etc. style single-token handling first, and `sed`/`find` are not in that set now but the real bug is broader: any command in `READ_ONLY_COMMANDS` is returned `False` before option-sensitive checks. If `sed` or `find` are ever added there, mutating variants become misclassified. More importantly today, `xargs` is marked read-only in `READ_ONLY_COMMANDS`, so `xargs rm`, `xargs mv`, etc. are misclassified as read-only.
+
+P1. `src/trace_collector.py:174-183`  
+Pipeline classification treats every segment whose first token is in `READ_ONLY_COMMANDS` as read-only. Because `xargs` is in that set, `find ... | xargs rm` is classified read-only even though it mutates state. This directly undercounts `total_state_modifying_calls` and drops rows from `tool_calls`.
+
+P1. `src/trace_collector.py:186-190`, `src/trace_collector.py:108-127`  
+All `python -c` / `python3 -c` / `node -e` commands default to read-only unless crude substring heuristics detect writes. A mutating one-liner like `python -c "import pathlib; pathlib.Path('x').touch()"` is falsely read-only. That causes dropped state-modifying records.
+
+P1. `src/docker_validate.py:127-133`, `src/swebench_validate.py:259-260`  
+Both validators overwrite `runs.task_success`, which runner initially sets from the task’s `validation_command`. That conflates two different success definitions into one column and silently changes historical outcomes after the fact.
+
+P1. `src/analysis.py:101-111`  
+`prior_failure_streak` treats missing or unparseable `tool_result_json` as success. When trace parsing misses a result or stores a non-dict payload, failure streak is biased downward instead of marked unknown, contaminating feature values silently.
+
+P1. `src/analysis.py:168-189`, `src/analysis.py:199-209`  
+Analysis filters on `r.task_source = 'swe-bench-lite'`, but the DB output already contains rows with blank `task_success` for that population. Summary and correlations therefore exclude unresolved validations but still use mutated `task_success` from later validators. The reported success correlations are against a mixed, post-hoc label, not a stable run-time outcome.
+
+P2. `src/swebench_validate.py:113-115`  
+Patch extraction drops test-file edits unconditionally. If a task is resolved by adding/updating tests required by the benchmark repo setup, the validator records “no patch” or unresolved despite the run changing repository state.
+
+P2. `src/runner.py:153-168`  
+`extract_token_count()` sums every event carrying `usage`. If the stream includes cumulative usage snapshots rather than per-event deltas, tokens are overcounted. There is no guard against double-counting.
+
+P2. `src/analysis.py:246-247`, DB query output  
+Latest-run dedup uses `created_at` string ordering at second precision. Multiple runs of the same task created within the same second can tie, making “latest” nondeterministic and potentially selecting the wrong run for correlations or SWE-bench prediction generation.

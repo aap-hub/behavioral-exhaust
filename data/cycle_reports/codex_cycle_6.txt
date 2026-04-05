@@ -1,0 +1,18 @@
+# Codex Audit — Cycle 6
+# 2026-03-29T04:32:30.950443+00:00
+
+P0. Transaction boundaries are broken, so inserts that are supposed to be atomic can commit partial state. `runner.run_task()` and `analysis.reparse_all_runs()` open a transaction, but [src/db.py](/Users/al/projects/uga-harness/src/db.py#L197) `insert_run()`, [src/db.py](/Users/al/projects/uga-harness/src/db.py#L225) `insert_tool_call()`, and [src/db.py](/Users/al/projects/uga-harness/src/db.py#L258) `update_features()` each call `conn.commit()` internally. A later failure leaves silently partial `runs` / `tool_calls` / feature updates in place instead of rolling back. See callers at [src/runner.py](/Users/al/projects/uga-harness/src/runner.py#L366) and [src/analysis.py](/Users/al/projects/uga-harness/src/analysis.py#L380).
+
+P0. SWE-bench patch reconstruction silently drops or truncates agent edits, which can flip validation outcomes. In [src/swebench_validate.py](/Users/al/projects/uga-harness/src/swebench_validate.py#L102), `Edit` ops are applied only if `old_string` is found; misses are ignored with no error. Also if a file gets `Write` then later `Edit`, the later edits are discarded because the `full_write` branch wins at [src/swebench_validate.py](/Users/al/projects/uga-harness/src/swebench_validate.py#L95). That corrupts the patch used by both validators.
+
+P1. Bash classification marks standalone `xargs` as read-only, so `xargs rm`, `xargs mv`, etc. are dropped from `tool_calls` and from `total_state_modifying_calls`. `xargs` is in `READ_ONLY_COMMANDS` at [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L52) and gets returned as non-modifying at [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L196). It is only treated as mutating inside pipe handling.
+
+P1. `python -c` / `python3 -c` / `node -e` classification is too permissive and contradicts the stated heuristic. `_is_python_node_readonly()` returns `True` unless it sees a small denylist; it does not require `print`/`console.log` despite the docstring at [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L108). That misclassifies many side-effecting one-liners as read-only and drops them from analysis.
+
+P1. Call-level correlation analysis is statistically invalid but still reported with raw-call `n` and significance markers. [src/analysis.py](/Users/al/projects/uga-harness/src/analysis.py#L294) regresses per-call features against run-level `task_success`, so each run is duplicated across all its calls; the code even prints that rho is inflated at [src/analysis.py](/Users/al/projects/uga-harness/src/analysis.py#L330) but still emits `p`-value-like signals from `spearmanr` on pseudoreplicated data.
+
+P1. Task-level analysis silently drops runs with zero state-modifying calls. [src/analysis.py](/Users/al/projects/uga-harness/src/analysis.py#L199) inner-joins `tool_calls` to `runs`, so any successful/failed run with `total_state_modifying_calls = 0` vanishes from correlations entirely. That is a dropped-record bias in the analysis dataset.
+
+P2. `update_label()` finalizes `label_final` after only one human pass, which can contaminate any “labeled only” analysis with unreconciled labels. See [src/db.py](/Users/al/projects/uga-harness/src/db.py#L337) to [src/db.py](/Users/al/projects/uga-harness/src/db.py#L342). The docstring says reconciliation is after pass 2.
+
+P2. Hedging counts undercount punctuation-terminated hedge terms. [src/feature_definitions.py](/Users/al/projects/uga-harness/src/feature_definitions.py#L114) compares raw whitespace tokens to the hedge lexicon without stripping punctuation, unlike verification/planning scoring. That biases `hedging_score` downward on normal prose.

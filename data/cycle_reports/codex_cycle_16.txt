@@ -1,0 +1,14 @@
+# Codex Audit — Cycle 16
+# 2026-03-29T10:16:09.845263+00:00
+
+- P1 [`src/db.py:197`](/Users/al/projects/uga-harness/src/db.py#L197) [`src/db.py:225`](/Users/al/projects/uga-harness/src/db.py#L225) [`src/runner.py:374`](/Users/al/projects/uga-harness/src/runner.py#L374): `insert_run()` and `insert_tool_call()` call `conn.commit()` internally, so the supposed single transaction in `runner.py` is not atomic. A mid-loop failure can persist a run plus a prefix of `tool_calls`, silently corrupting counts.
+
+- P1 [`src/trace_collector.py:185`](/Users/al/projects/uga-harness/src/trace_collector.py#L185) [`src/trace_collector.py:196`](/Users/al/projects/uga-harness/src/trace_collector.py#L196): `Bash` classification marks `python -m pytest ...` and similar read-only test commands as state-modifying, because only `python -c`/`node -e` are exempt. In the live DB, 278 stored state-modifying `Bash` rows match `python%pytest%`. This inflates `total_state_modifying_calls`, sequence numbers, and all downstream per-call features.
+
+- P1 [`src/docker_validate.py:127`](/Users/al/projects/uga-harness/src/docker_validate.py#L127) [`src/swebench_validate.py:265`](/Users/al/projects/uga-harness/src/swebench_validate.py#L265): external validators overwrite `runs.task_success`, even though schema/comments define it as the original validation-command outcome. This mixes incompatible labels in one column and contaminates `analysis.py`, which treats `task_success` as the dependent variable.
+
+- P1 [`src/swebench_validate.py:42`](/Users/al/projects/uga-harness/src/swebench_validate.py#L42) [`src/swebench_validate.py:83`](/Users/al/projects/uga-harness/src/swebench_validate.py#L83) [`src/swebench_validate.py:106`](/Users/al/projects/uga-harness/src/swebench_validate.py#L106): patch extraction only replays `Write`/`Edit`, ignores state-changing `Bash` edits entirely, and silently drops `Edit` operations when `old_string` is not found. Validation can therefore mark a real run unresolved because the reconstructed patch is incomplete/wrong.
+
+- P2 [`src/analysis.py:103`](/Users/al/projects/uga-harness/src/analysis.py#L103): missing or unparseable `tool_result_json` is treated as success when computing `prior_failure_streak`. That silently biases the feature downward exactly on malformed/dropped result records.
+
+- P2 [`src/trace_collector.py:196`](/Users/al/projects/uga-harness/src/trace_collector.py#L196): `xargs` is globally whitelisted as read-only, so standalone mutators like `xargs rm`/`xargs mv` are misclassified as safe. The pipe-specific mutator check does not catch the non-pipeline case.

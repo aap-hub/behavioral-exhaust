@@ -1,0 +1,16 @@
+# Codex Audit — Cycle 10
+# 2026-03-29T07:13:45.636408+00:00
+
+P1. The “atomic” DB writes are not atomic. [`insert_run()`](/Users/al/projects/uga-harness/src/db.py#L197) and [`insert_tool_call()`](/Users/al/projects/uga-harness/src/db.py#L225) call `commit()` internally, but [`run_task()`](/Users/al/projects/uga-harness/src/runner.py#L367) and [`reparse_all_runs()`](/Users/al/projects/uga-harness/src/analysis.py) wrap them in `BEGIN`/`rollback`. A mid-batch failure can leave a committed `runs` row with a partial or empty `tool_calls` set, or a reparsed run with its old calls deleted and only some new calls reinserted.
+
+P1. Bash classification marks many mutating/side-effecting one-liners as read-only. [`_is_python_node_readonly()`](/Users/al/projects/uga-harness/src/trace_collector.py#L108) returns `True` unless it sees a small denylist; it does not require any read-only signal despite the docstring. Because [`classify_state_modifying()`](/Users/al/projects/uga-harness/src/trace_collector.py#L185) trusts that result for `python -c` / `python3 -c` / `node -e`, commands with network calls, DB writes, subprocesses not on the denylist, etc. are silently excluded from `tool_calls`.
+
+P1. Bash classification also misclassifies `xargs` as read-only in the non-pipeline path. [`READ_ONLY_COMMANDS`](/Users/al/projects/uga-harness/src/trace_collector.py#L52) includes `xargs`, and [`classify_state_modifying()`](/Users/al/projects/uga-harness/src/trace_collector.py#L196) returns `False` immediately on first token match. So `xargs rm`, `xargs mv`, etc. are counted as read-only unless they happen to go through the special pipe branch.
+
+P1. Validation patch extraction drops real code changes made outside `Write`/`Edit`. [`extract_patch_from_stream()`](/Users/al/projects/uga-harness/src/swebench_validate.py#L23) reconstructs patches only from `Write`/`Edit` tool calls and ignores state-modifying `Bash` edits (`sed -i`, `mv`, `cp`, heredocs, `git apply`, etc.). That causes false “no patch extracted”, skipped SWE-bench predictions, and wrong `task_success` updates in [`docker_validate.py`](/Users/al/projects/uga-harness/src/docker_validate.py#L98) / [`swebench_validate.py`](/Users/al/projects/uga-harness/src/swebench_validate.py#L168).
+
+P1. Patch replay for `Edit` silently drops unmatched edits. In [`extract_patch_from_stream()`](/Users/al/projects/uga-harness/src/swebench_validate.py#L102), each edit is applied only if `old_string in modified`; otherwise it is ignored with no error. That can generate incomplete diffs and incorrect validation labels while looking successful.
+
+P2. Task-level analysis silently excludes any run with zero state-modifying calls, because [`task_level_correlations()`](/Users/al/projects/uga-harness/src/analysis.py#L193) starts from `tool_calls JOIN runs` rather than from `runs`. Those runs disappear from the sample entirely, biasing correlations and any “latest run per task” selection.
+
+P2. The summary output is internally inconsistent when `task_success` is `NULL`. [`summary()`](/Users/al/projects/uga-harness/src/analysis.py#L163) counts all runs in `COUNT(*)` but only non-NULL successes/failures in the sums, so the printed “Runs: N (pass, fail)” underreports unresolved runs. The current DB already has `task_success IS NULL` rows.

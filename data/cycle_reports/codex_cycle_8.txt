@@ -1,0 +1,20 @@
+# Codex Audit — Cycle 8
+# 2026-03-29T05:43:41.150052+00:00
+
+1. P1 Atomicity is broken despite the explicit `BEGIN`: `insert_run()` and `insert_tool_call()` call `conn.commit()` internally, so [src/runner.py](/Users/al/projects/uga-harness/src/runner.py#L374) and [src/analysis.py](/Users/al/projects/uga-harness/src/analysis.py#L410) can leave partially written runs/tool_calls on mid-batch failure. The same bug is in [src/db.py](/Users/al/projects/uga-harness/src/db.py#L197) and [src/db.py](/Users/al/projects/uga-harness/src/db.py#L225).
+
+2. P1 Trace parsing silently drops malformed JSON lines and keeps going, which can undercount tool calls / lose records without marking the run corrupted. See [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L334).
+
+3. P1 Bash classification has false negatives for compound commands: `grep ... && rm ...` or `cat ... ; mv ...` skip the pipeline branch, then get classified by the first token only, so the mutating tail is missed. See [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L172) and [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L196).
+
+4. P1 Bash classification also mislabels writes using redirection without trailing whitespace, e.g. `echo hi >out.txt` / `>>out.txt`; the regex misses them, then read-only commands like `echo` are accepted as non-mutating. See [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L165) and [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L196).
+
+5. P1 `xargs` is globally whitelisted as read-only, so `xargs rm`, `xargs sed -i`, etc. are recorded as non-state-modifying. See [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L60) and [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L196).
+
+6. P1 Validation reconstructs patches from only `Write`/`Edit` events, ignoring file mutations done through state-modifying `Bash` (`sed -i`, `mv`, `patch`, shell redirection, etc.). That can mark a real fix unresolved and overwrite `task_success` with a false failure. See [src/swebench_validate.py](/Users/al/projects/uga-harness/src/swebench_validate.py#L23) and [src/docker_validate.py](/Users/al/projects/uga-harness/src/docker_validate.py#L98).
+
+7. P1 `call_level_correlations()` computes Spearman stats and apparent sample sizes on per-call rows while the label is run-level `task_success`; repeated calls from the same run violate independence, so the reported rho/p-values are invalid/inflated even though the code prints them. See [src/analysis.py](/Users/al/projects/uga-harness/src/analysis.py#L294).
+
+8. P2 `extract_features_for_all()` treats missing/unparseable `tool_result_json` as success when building `prior_failure_streak`, biasing failure-streak downward after any parse/result loss. See [src/analysis.py](/Users/al/projects/uga-harness/src/analysis.py#L99).
+
+9. P2 Retry detection keys Bash calls by the first 80 chars of `command`, so distinct commands with the same prefix collapse together and inflate retry counts. See [src/analysis.py](/Users/al/projects/uga-harness/src/analysis.py#L116).

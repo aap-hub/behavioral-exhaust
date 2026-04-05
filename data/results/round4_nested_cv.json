@@ -1,0 +1,76 @@
+{
+  "sonnet": {
+    "model": "Sonnet",
+    "n_runs": 181,
+    "n_tasks": 73,
+    "success_rate": 0.4972375690607735,
+    "nested_loo_cv": {
+      "auc": 0.5693528693528693,
+      "accuracy": 0.569060773480663,
+      "n_predictions": 181,
+      "n_folds": 73,
+      "feature_stability": {
+        "fail_streak_max": 1.0,
+        "early_error_rate": 1.0,
+        "deliberation_length": 1.0,
+        "backtrack_count": 1.0,
+        "first_edit_position": 1.0,
+        "unique_files_touched": 1.0,
+        "instead_contrast_density": 0.9863
+      }
+    },
+    "bootstrap_ci": {
+      "mean_auc": 0.5711679954282495,
+      "se": 0.043181385896195044,
+      "ci_lo": 0.48846851554452775,
+      "ci_hi": 0.6561594710102481,
+      "n_valid_bootstraps": 2000
+    },
+    "permutation_test": {
+      "method": "nested_loo_cv_permutation",
+      "n_permutations": 2071,
+      "observed_auc": 0.5693528693528693,
+      "mean_null_auc": 0.43960595442971107,
+      "std_null_auc": 0.10296417215008508,
+      "p_value": 0.06422018348623854,
+      "elapsed_seconds": 300.02545714378357
+    }
+  },
+  "codex": {
+    "model": "Codex",
+    "n_runs": 164,
+    "n_tasks": 65,
+    "success_rate": 0.47560975609756095,
+    "nested_loo_cv": {
+      "auc": 0.6343172331544424,
+      "accuracy": 0.6402439024390244,
+      "n_predictions": 164,
+      "n_folds": 65,
+      "feature_stability": {
+        "fail_streak_max": 1.0,
+        "early_error_rate": 1.0,
+        "deliberation_length": 0.0,
+        "backtrack_count": 0.0154,
+        "first_edit_position": 0.0,
+        "unique_files_touched": 0.0,
+        "instead_contrast_density": 1.0
+      }
+    },
+    "bootstrap_ci": {
+      "mean_auc": 0.6343867667938325,
+      "se": 0.04417544028863779,
+      "ci_lo": 0.5465407737093891,
+      "ci_hi": 0.7198331818306374,
+      "n_valid_bootstraps": 2000
+    },
+    "permutation_test": {
+      "method": "nested_loo_cv_permutation",
+      "n_permutations": 2799,
+      "observed_auc": 0.6343172331544424,
+      "mean_null_auc": 0.4232747586613585,
+      "std_null_auc": 0.10550779725046813,
+      "p_value": 0.0003572704537334762,
+      "elapsed_seconds": 300.0699498653412
+    }
+  }
+}

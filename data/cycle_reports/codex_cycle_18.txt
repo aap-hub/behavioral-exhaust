@@ -1,0 +1,20 @@
+# Codex Audit — Cycle 18
+# 2026-03-29T11:02:56.654655+00:00
+
+P1. [`src/runner.py:355`](file:///Users/al/projects/uga-harness/src/runner.py#L355), [`src/db.py:197`](file:///Users/al/projects/uga-harness/src/db.py#L197), [`src/db.py:225`](file:///Users/al/projects/uga-harness/src/db.py#L225): the “single transaction” is fake. `run_task()` does `BEGIN`, but `insert_run()` and `insert_tool_call()` each `commit()`. A later insert failure can leave a persisted `runs` row with a partial `tool_calls` set.
+
+P1. [`src/analysis.py:364`](file:///Users/al/projects/uga-harness/src/analysis.py#L364), [`src/db.py:225`](file:///Users/al/projects/uga-harness/src/db.py#L225): `reparse_all_runs()` has the same atomicity bug after `DELETE FROM tool_calls`. If any reinsert fails mid-run, the old rows are already gone and the replacement is only partially written.
+
+P1. [`src/trace_collector.py:239`](file:///Users/al/projects/uga-harness/src/trace_collector.py#L239), [`src/trace_collector.py:255`](file:///Users/al/projects/uga-harness/src/trace_collector.py#L255), [`src/trace_collector.py:415`](file:///Users/al/projects/uga-harness/src/trace_collector.py#L415): reasoning attribution is wrong for mixed assistant messages. The parser first concatenates all text/thinking blocks, then assigns that same `full_reasoning` to every state-modifying tool in the message, including text that may appear after an earlier tool call. That silently corrupts per-call linguistic features.
+
+P1. [`src/trace_collector.py:172`](file:///Users/al/projects/uga-harness/src/trace_collector.py#L172), [`src/trace_collector.py:196`](file:///Users/al/projects/uga-harness/src/trace_collector.py#L196): Bash classification misses mutating pipelines once `&&` or `;` is present. Example shape: `cat x | tee y && ...` bypasses the pipe check, then gets classified from first token `cat` as read-only.
+
+P1. [`src/trace_collector.py:53`](file:///Users/al/projects/uga-harness/src/trace_collector.py#L53), [`src/trace_collector.py:196`](file:///Users/al/projects/uga-harness/src/trace_collector.py#L196): standalone `xargs` is listed as read-only, so `printf foo | xargs rm` / `xargs sed -i` is misclassified as non-mutating.
+
+P1. [`src/swebench_validate.py:23`](file:///Users/al/projects/uga-harness/src/swebench_validate.py#L23), [`src/docker_validate.py:98`](file:///Users/al/projects/uga-harness/src/docker_validate.py#L98): validation patch extraction only replays `Write`/`Edit`. Any file mutation done via `Bash` (`sed -i`, redirects, `mv`, `cp`, patch application, codegen) is dropped, so Docker/SWE-bench validation can mark a real fix unresolved or validate the wrong patch.
+
+P1. [`src/swebench_validate.py:102`](file:///Users/al/projects/uga-harness/src/swebench_validate.py#L102): `Edit` replay silently skips unmatched `old_string` blocks. That produces truncated/incorrect diffs without surfacing an error, which is silent validation corruption.
+
+P2. [`src/db.py:200`](file:///Users/al/projects/uga-harness/src/db.py#L200), [`src/db.py:228`](file:///Users/al/projects/uga-harness/src/db.py#L228): inserts silently ignore unknown keys. Any schema drift or typo in record construction drops fields with no exception, making data loss hard to detect.
+
+P2. [`src/analysis.py:246`](file:///Users/al/projects/uga-harness/src/analysis.py#L246), [`src/swebench_validate.py:153`](file:///Users/al/projects/uga-harness/src/swebench_validate.py#L153): “latest run” selection is `ORDER BY created_at` / string comparison on second-resolution timestamps. Multiple reruns in the same second can cause nondeterministic deduplication and wrong run selection for analysis/validation.

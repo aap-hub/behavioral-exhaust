@@ -1,0 +1,62 @@
+{
+  "simulation_date": "2026-04-04",
+  "description": "Post-hoc introspective gate simulation on Phase 0 Sonnet runs. Codex excluded because Codex uses Bash exclusively (no Edit/Write calls).",
+  "gate_config": {
+    "alignment_threshold": 0.5,
+    "deliberation_threshold_chars": 117
+  },
+  "note": "Gate thresholds were computed from Phase 0 passing runs. alignment_threshold is based on reasoning_to_action_alignment, which was RETRACTED (perm p=0.35). This means the alignment check component of the gate is built on a confounded signal.",
+  "A1_early_gate": {
+    "description": "Introspective gate applied to first 1/3 of trajectory only",
+    "model": "Sonnet 4.6 only",
+    "total_runs": 181,
+    "total_edit_write_calls": 553,
+    "blocked": 180,
+    "block_rate": 0.325,
+    "call_level": {
+      "precision": 0.628,
+      "recall": 0.388,
+      "tp": 113, "fp": 67, "tn": 195, "fn": 178
+    },
+    "run_level": {
+      "blocked_fail": 66,
+      "blocked_pass": 46,
+      "unblocked_fail": 111,
+      "unblocked_pass": 122,
+      "precision": 0.589,
+      "recall": 0.373
+    },
+    "block_reasons": {
+      "alignment_only": 98,
+      "deliberation_only": 1,
+      "both": 81
+    },
+    "per_repo": {
+      "sympy": {"total": 249, "blocked": 63, "precision": 0.762, "recall": 0.289},
+      "django": {"total": 138, "blocked": 50, "precision": 0.200, "recall": 0.588},
+      "pytest-dev": {"total": 118, "blocked": 40, "precision": 0.900, "recall": 0.468},
+      "psf": {"total": 21, "blocked": 12, "precision": 0.917, "recall": 0.647}
+    }
+  },
+  "B1_always_gate": {
+    "description": "Introspective gate applied to all calls",
+    "model": "Sonnet 4.6 only",
+    "total_runs": 181,
+    "total_edit_write_calls": 553,
+    "blocked": 514,
+    "block_rate": 0.929,
+    "call_level": {
+      "precision": 0.545,
+      "recall": 0.962,
+      "tp": 280, "fp": 234, "tn": 28, "fn": 11
+    }
+  },
+  "key_findings": [
+    "Codex cannot be gated by this mechanism — it never uses Edit/Write tools, only Bash",
+    "B1 (always gate) blocks 92.9% of calls — too aggressive to be practical",
+    "A1 (early gate) blocks 32.5% with 62.8% precision — modest but above random (50.8% base fail rate)",
+    "Gate precision varies dramatically by repo: 76.2% on sympy (balanced), 20.0% on django (high pass rate)",
+    "Alignment check accounts for most blocks (98 alignment-only + 81 both vs 1 deliberation-only)",
+    "The alignment check is based on the RETRACTED reasoning_to_action_alignment feature"
+  ]
+}

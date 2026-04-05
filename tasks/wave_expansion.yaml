@@ -1,0 +1,870 @@
+tasks:
+- task_id: astropy__astropy-6938
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/astropy__astropy-6938
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nPossible bug in io.fits related to D exponents\nI came across the following code in ``fitsrec.py``:\r\
+    \n\r\n```python\r\n        # Replace exponent separator in floating point numbers\r\n        if 'D' in format:\r\n   \
+    \         output_field.replace(encode_ascii('E'), encode_ascii('D'))\r\n```\r\n\r\nI think this may be incorrect because\
+    \ as far as I can tell ``replace`` is not an in-place operation for ``chararray`` (it returns a copy). Commenting out\
+    \ this code doesn't cause any tests to fail so I think this code isn't being tested anyway."
+  validation_command: python -m pytest astropy/io/fits/tests/test_checksum.py::TestChecksumFunctions::test_ascii_table_data
+    astropy/io/fits/tests/test_table.py::TestTableFunctions::test_ascii_table -x
+  expected_min_calls: 5
+- task_id: django__django-11179
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-11179
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\ndelete() on instances of models without any dependencies doesn't clear PKs.\nDescription\n\
+    \t\nDeleting any model with no dependencies not updates the PK on the model. It should be set to None after .delete()\
+    \ call.\nSee Django.db.models.deletion:276-281. Should update the model line 280."
+  validation_command: python tests/runtests.py --settings=test_sqlite delete
+  expected_min_calls: 5
+- task_id: django__django-11742
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-11742
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nAdd check to ensure max_length fits longest choice.\nDescription\n\t\nThere is currently no\
+    \ check to ensure that Field.max_length is large enough to fit the longest value in Field.choices.\nThis would be very\
+    \ helpful as often this mistake is not noticed until an attempt is made to save a record with those values that are too\
+    \ long."
+  validation_command: python tests/runtests.py --settings=test_sqlite invalid_models_tests
+  expected_min_calls: 5
+- task_id: django__django-11905
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-11905
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nPrevent using __isnull lookup with non-boolean value.\nDescription\n\t \n\t\t(last modified\
+    \ by Mariusz Felisiak)\n\t \n__isnull should not allow for non-boolean values. Using truthy/falsey doesn't promote INNER\
+    \ JOIN to an OUTER JOIN but works fine for a simple queries. Using non-boolean values is ​undocumented and untested. IMO\
+    \ we should raise an error for non-boolean values to avoid confusion and for consistency."
+  validation_command: python tests/runtests.py --settings=test_sqlite lookup
+  expected_min_calls: 5
+- task_id: django__django-11999
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-11999
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nCannot override get_FOO_display() in Django 2.2+.\nDescription\n\t\nI cannot override the\
+    \ get_FIELD_display function on models since version 2.2. It works in version 2.1.\nExample:\nclass FooBar(models.Model):\n\
+    \tfoo_bar = models.CharField(_(\"foo\"), choices=[(1, 'foo'), (2, 'bar')])\n\tdef __str__(self):\n\t\treturn self.get_foo_bar_display()\
+    \ # This returns 'foo' or 'bar' in 2.2, but 'something' in 2.1\n\tdef get_foo_bar_display(self):\n\t\treturn \"something\"\
+    \nWhat I expect is that I should be able to override this function."
+  validation_command: python tests/runtests.py --settings=test_sqlite model_fields
+  expected_min_calls: 5
+- task_id: django__django-12308
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-12308
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nJSONField are not properly displayed in admin when they are readonly.\nDescription\n\t\nJSONField\
+    \ values are displayed as dict when readonly in the admin.\nFor example, {\"foo\": \"bar\"} would be displayed as {'foo':\
+    \ 'bar'}, which is not valid JSON.\nI believe the fix would be to add a special case in django.contrib.admin.utils.display_for_field\
+    \ to call the prepare_value of the JSONField (not calling json.dumps directly to take care of the InvalidJSONInput case)."
+  validation_command: python tests/runtests.py --settings=test_sqlite admin_utils
+  expected_min_calls: 5
+- task_id: django__django-12856
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-12856
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nAdd check for fields of UniqueConstraints.\nDescription\n\t \n\t\t(last modified by Marnanel\
+    \ Thurman)\n\t \nWhen a model gains a UniqueConstraint, makemigrations doesn't check that the fields named therein actually\
+    \ exist.\nThis is in contrast to the older unique_together syntax, which raises models.E012 if the fields don't exist.\n\
+    In the attached demonstration, you'll need to uncomment \"with_unique_together\" in settings.py in order to show that\
+    \ unique_together raises E012."
+  validation_command: python tests/runtests.py --settings=test_sqlite invalid_models_tests
+  expected_min_calls: 5
+- task_id: django__django-12983
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-12983
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nMake django.utils.text.slugify() strip dashes and underscores\nDescription\n\t \n\t\t(last\
+    \ modified by Elinaldo do Nascimento Monteiro)\n\t \nBug generation slug\nExample:\nfrom django.utils import text\ntext.slugify(\"\
+    ___This is a test ---\")\noutput: ___this-is-a-test-\nImprovement after correction\nfrom django.utils import text\ntext.slugify(\"\
+    ___This is a test ---\")\noutput: this-is-a-test\n​PR"
+  validation_command: python tests/runtests.py --settings=test_sqlite utils_tests
+  expected_min_calls: 5
+- task_id: django__django-13230
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-13230
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nAdd support for item_comments to syndication framework\nDescription\n\t\nAdd comments argument\
+    \ to feed.add_item() in syndication.views so that item_comments can be defined directly without having to take the detour\
+    \ via item_extra_kwargs .\nAdditionally, comments is already explicitly mentioned in the feedparser, but not implemented\
+    \ in the view."
+  validation_command: python tests/runtests.py --settings=test_sqlite syndication_tests
+  expected_min_calls: 5
+- task_id: django__django-13315
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-13315
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nlimit_choices_to on a ForeignKey can render duplicate options in formfield\nDescription\n\t\
+    \nIf you pass a Q object as limit_choices_to on a ForeignKey field involving a join, you may end up with duplicate options\
+    \ in your form.\nSee regressiontest in patch for a clear view on the problem."
+  validation_command: python tests/runtests.py --settings=test_sqlite model_forms
+  expected_min_calls: 5
+- task_id: django__django-13447
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-13447
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nAdded model class to app_list context\nDescription\n\t \n\t\t(last modified by Raffaele Salmaso)\n\
+    \t \nI need to manipulate the app_list in my custom admin view, and the easiest way to get the result is to have access\
+    \ to the model class (currently the dictionary is a serialized model).\nIn addition I would make the _build_app_dict method\
+    \ public, as it is used by the two views index and app_index."
+  validation_command: python tests/runtests.py --settings=test_sqlite admin_views
+  expected_min_calls: 5
+- task_id: django__django-14155
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-14155
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nResolverMatch.__repr__() doesn't handle functools.partial() nicely.\nDescription\n\t \n\t\t\
+    (last modified by Nick Pope)\n\t \nWhen a partial function is passed as the view, the __repr__ shows the func argument\
+    \ as functools.partial which isn't very helpful, especially as it doesn't reveal the underlying function or arguments\
+    \ provided.\nBecause a partial function also has arguments provided up front, we need to handle those specially so that\
+    \ they are accessible in __repr__.\nISTM that we can simply unwrap functools.partial objects in ResolverMatch.__init__()."
+  validation_command: python tests/runtests.py --settings=test_sqlite urlpatterns_reverse
+  expected_min_calls: 5
+- task_id: django__django-14411
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-14411
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nLabel for ReadOnlyPasswordHashWidget points to non-labelable element.\nDescription\n\t \n\t\
+    \t(last modified by David Sanders)\n\t \nIn the admin, the label element for the ReadOnlyPasswordHashWidget widget has\
+    \ a 'for' attribute which points to a non-labelable element, since the widget just renders text, not an input. There's\
+    \ no labelable element for the widget, so the label shouldn't have a 'for' attribute."
+  validation_command: python tests/runtests.py --settings=test_sqlite auth_tests
+  expected_min_calls: 5
+- task_id: django__django-14730
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-14730
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nPrevent developers from defining a related_name on symmetrical ManyToManyFields\nDescription\n\
+    \t\nIn ManyToManyField, if the symmetrical argument is passed, or if it's a self-referential ManyToMany relationship,\
+    \ the related field on the target model is not created. However, if a developer passes in the related_name not understanding\
+    \ this fact, they may be confused until they find the information about symmetrical relationship. Thus, it is proposed\
+    \ to raise an error when the user defines a ManyToManyField in this condition."
+  validation_command: python tests/runtests.py --settings=test_sqlite invalid_models_tests
+  expected_min_calls: 5
+- task_id: django__django-14999
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-14999
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nRenameModel with db_table should be a noop.\nDescription\n\t\nA RenameModel operation that\
+    \ already has db_table defined must be a noop.\nIn Postgres, it drops and recreates foreign key constraints. In sqlite\
+    \ it recreates the table (as expected for a table renaming)."
+  validation_command: python tests/runtests.py --settings=test_sqlite migrations
+  expected_min_calls: 5
+- task_id: django__django-15061
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-15061
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nRemove \"for = ...\" from MultiWidget's <label>.\nDescription\n\t\nThe instance from Raw MultiWidget\
+    \ class generate id_for_label like f'{id_}0'\nIt has not sense.\nFor example ChoiceWidget has self.add_id_index and I\
+    \ can decide it myself, how I will see label_id - with or without index.\nI think, it is better to remove completely id_for_label\
+    \ method from MultiWidget Class."
+  validation_command: python tests/runtests.py --settings=test_sqlite forms_tests
+  expected_min_calls: 5
+- task_id: django__django-15202
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-15202
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nURLField throws ValueError instead of ValidationError on clean\nDescription\n\t\nforms.URLField(\
+    \ ).clean('////]@N.AN')\nresults in:\n\tValueError: Invalid IPv6 URL\n\tTraceback (most recent call last):\n\t File \"\
+    basic_fuzzer.py\", line 22, in TestOneInput\n\t File \"fuzzers.py\", line 350, in test_forms_URLField\n\t File \"django/forms/fields.py\"\
+    , line 151, in clean\n\t File \"django/forms/fields.py\", line 136, in run_validators\n\t File \"django/core/validators.py\"\
+    , line 130, in __call__\n\t File \"urllib/parse.py\", line 440, in urlsplit"
+  validation_command: python tests/runtests.py --settings=test_sqlite forms_tests
+  expected_min_calls: 5
+- task_id: django__django-15498
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-15498
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nFix handling empty string for If-Modified-Since header\nDescription\n\t\nEmpty string used\
+    \ to be ignored for If-Modified-Since header, but now raises exception since d6aff369ad3.\nFix handling empty string for\
+    \ If-Modified-Since header\nDescription\n\t\nEmpty string used to be ignored for If-Modified-Since header, but now raises\
+    \ exception since d6aff369ad3."
+  validation_command: python tests/runtests.py --settings=test_sqlite view_tests
+  expected_min_calls: 5
+- task_id: django__django-15789
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-15789
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nAdd an encoder parameter to django.utils.html.json_script().\nDescription\n\t\nI have a use\
+    \ case where I want to customize the JSON encoding of some values to output to the template layer. It looks like django.utils.html.json_script\
+    \ is a good utility for that, however the JSON encoder is hardcoded to DjangoJSONEncoder. I think it would be nice to\
+    \ be able to pass a custom encoder class.\nBy the way, django.utils.html.json_script is not documented (only its template\
+    \ filter counterpart is), would it be a good thing to add to the docs?"
+  validation_command: python tests/runtests.py --settings=test_sqlite utils_tests
+  expected_min_calls: 5
+- task_id: django__django-15790
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-15790
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\ncheck_for_template_tags_with_the_same_name with libraries in TEMPLATES\nDescription\n\t\n\
+    I didn't explore this thoroughly, but I think there might be an issue with the check_for_template_tags_with_the_same_name\
+    \ when you add a template tag library into TEMPLATES['OPTIONS']['librairies'].\nI'm getting an error like: \n(templates.E003)\
+    \ 'my_tags' is used for multiple template tag modules: 'someapp.templatetags.my_tags', 'someapp.templatetags.my_tags'"
+  validation_command: python tests/runtests.py --settings=test_sqlite check_framework
+  expected_min_calls: 5
+- task_id: django__django-15819
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-15819
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\ninspectdb should generate related_name on same relation links.\nDescription\n\t\nHi!\nAfter\
+    \ models generation with inspectdb command we have issue with relations to same enities\nmodule.Model.field1: (fields.E304)\
+    \ Reverse accessor for 'module.Model.field1' clashes with reverse accessor for 'module.Model.field2'.\nHINT: Add or change\
+    \ a related_name argument to the definition for 'module.Model.field1' or 'module.Model.field2'.\n*\nMaybe we can autogenerate\n\
+    related_name='attribute_name'\nto all fields in model if related Model was used for this table"
+  validation_command: python tests/runtests.py --settings=test_sqlite inspectdb
+  expected_min_calls: 5
+- task_id: django__django-15902
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-15902
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\n\"default.html\" deprecation warning raised for ManagementForm's\nDescription\n\t\nI have\
+    \ a project where I never render forms with the {{ form }} expression. However, I'm still getting the new template deprecation\
+    \ warning because of the formset management form production, during which the template used is insignificant (only hidden\
+    \ inputs are produced).\nIs it worth special-casing this and avoid producing the warning for the management forms?"
+  validation_command: python tests/runtests.py --settings=test_sqlite forms_tests
+  expected_min_calls: 5
+- task_id: django__django-16046
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-16046
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nFix numberformat.py \"string index out of range\" when null\nDescription\n\t\nWhen:\nif str_number[0]\
+    \ == \"-\"\nencounters a number field that's null when formatting for the admin list_display this causes an \nIndexError:\
+    \ string index out of range\nI can attach the proposed fix here, or open a pull request on GitHub if you like?"
+  validation_command: python tests/runtests.py --settings=test_sqlite utils_tests
+  expected_min_calls: 5
+- task_id: django__django-16527
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-16527
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\n\"show_save_as_new\" in admin can add without this permission\nDescription\n\t \n\t\t(last\
+    \ modified by Mariusz Felisiak)\n\t \nAt \"django/contrib/admin/templatetags/admin_modify.py\" file, line 102, I think\
+    \ you must put one more verification for this tag: \"and has_add_permission\", because \"save_as_new\" is a add modification.\n\
+    I rewrite this for my project:\n\t\t\t\"show_save_as_new\": not is_popup\n\t\t\tand has_add_permission # This line that\
+    \ I put!!!\n\t\t\tand has_change_permission\n\t\t\tand change\n\t\t\tand save_as,"
+  validation_command: python tests/runtests.py --settings=test_sqlite admin_views
+  expected_min_calls: 5
+- task_id: django__django-16820
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/django__django-16820
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nSquashing migrations with Meta.index_together -> indexes transition should remove deprecation\
+    \ warnings.\nDescription\n\t\nSquashing migrations with Meta.index_together -> Meta.indexes transition should remove deprecation\
+    \ warnings. As far as I'm aware, it's a 4.2 release blocker because you cannot get rid of the index_together deprecation\
+    \ warnings without rewriting migrations, see comment."
+  validation_command: python tests/runtests.py --settings=test_sqlite migrations
+  expected_min_calls: 5
+- task_id: scikit-learn__scikit-learn-11281
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/scikit-learn__scikit-learn-11281
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nShould mixture models have a clusterer-compatible interface\nMixture models are currently\
+    \ a bit different. They are basically clusterers, except they are probabilistic, and are applied to inductive problems\
+    \ unlike many clusterers. But they are unlike clusterers in API:\r\n* they have an `n_components` parameter, with identical\
+    \ purpose to `n_clusters`\r\n* they do not store the `labels_` of the training data\r\n* they do not have a `fit_predict`\
+    \ method\r\n\r\nAnd they are almost entirely documented separately.\r\n\r\nShould we make the MMs more like clusterers?"
+  validation_command: python -m pytest sklearn/mixture/tests/test_bayesian_mixture.py::test_bayesian_mixture_fit_predict sklearn/mixture/tests/test_gaussian_mixture.py::test_gaussian_mixture_fit_predict
+    -x
+  expected_min_calls: 5
+- task_id: scikit-learn__scikit-learn-13497
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/scikit-learn__scikit-learn-13497
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nComparing string to array in _estimate_mi\nIn ``_estimate_mi`` there is ``discrete_features\
+    \ == 'auto'`` but discrete features can be an array of indices or a boolean mask.\r\nThis will error in future versions\
+    \ of numpy.\r\nAlso this means we never test this function with discrete features != 'auto', it seems?"
+  validation_command: python -m pytest sklearn/feature_selection/tests/test_mutual_info.py::test_mutual_info_options -x
+  expected_min_calls: 5
+- task_id: scikit-learn__scikit-learn-13584
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/scikit-learn__scikit-learn-13584
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nbug in print_changed_only in new repr: vector values\n```python\r\nimport sklearn\r\nimport\
+    \ numpy as np\r\nfrom sklearn.linear_model import LogisticRegressionCV\r\nsklearn.set_config(print_changed_only=True)\r\
+    \nprint(LogisticRegressionCV(Cs=np.array([0.1, 1])))\r\n```\r\n> ValueError: The truth value of an array with more than\
+    \ one element is ambiguous. Use a.any() or a.all()\r\n\r\nping @NicolasHug"
+  validation_command: python -m pytest sklearn/utils/tests/test_pprint.py::test_changed_only sklearn/utils/tests/test_pprint.py::test_pipeline
+    sklearn/utils/tests/test_pprint.py::test_deeply_nested -x
+  expected_min_calls: 5
+- task_id: scikit-learn__scikit-learn-15535
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/scikit-learn__scikit-learn-15535
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nregression in input validation of clustering metrics\n```python\r\nfrom sklearn.metrics.cluster\
+    \ import mutual_info_score\r\nimport numpy as np\r\n\r\nx = np.random.choice(['a', 'b'], size=20).astype(object)\r\nmutual_info_score(x,\
+    \ x)\r\n```\r\nValueError: could not convert string to float: 'b'\r\n\r\nwhile\r\n```python\r\nx = np.random.choice(['a',\
+    \ 'b'], size=20)\r\nmutual_info_score(x, x)\r\n```\r\nworks with a warning?\r\n\r\nthis worked in 0.21.1 without a warning\
+    \ (as I think it should)\r\n\r\n\r\nEdit by @ogrisel: I removed the `.astype(object)` in the second code snippet."
+  validation_command: python -m pytest sklearn/metrics/cluster/tests/test_common.py::test_format_invariance[adjusted_mutual_info_score]
+    sklearn/metrics/cluster/tests/test_common.py::test_format_invariance[adjusted_rand_score] sklearn/metrics/cluster/tests/test_common.py::test_format_invariance[completeness_score]
+    -x
+  expected_min_calls: 5
+- task_id: sphinx-doc__sphinx-7975
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sphinx-doc__sphinx-7975
+  prompt: 'Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install
+    -e ".[testing]"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.
+
+
+    Fix the following issue:
+
+
+    Two sections called Symbols in index
+
+    When using index entries with the following leading characters: _@_, _£_, and _←_ I get two sections called _Symbols_
+    in the HTML output, the first containing all _@_ entries before ”normal” words and the second containing _£_ and _←_ entries
+    after the ”normal” words.  Both have the same anchor in HTML so the links at the top of the index page contain two _Symbols_
+    links, one before the letters and one after, but both lead to the first section.'
+  validation_command: python -m pytest tests/test_environment_indexentries.py::test_create_single_index -x
+  expected_min_calls: 5
+- task_id: sphinx-doc__sphinx-8474
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sphinx-doc__sphinx-8474
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nv3.3 upgrade started generating \"WARNING: no number is assigned for table\" warnings\nWe've\
+    \ updated to Sphinx 3.3 in our documentation, and suddenly the following warning started popping up in our builds when\
+    \ we build either `singlehtml` or `latex`.:\r\n\r\n`WARNING: no number is assigned for table:`\r\n\r\nI looked through\
+    \ the changelog but it didn't seem like there was anything related to `numref` that was changed, but perhaps I missed\
+    \ something? Could anyone point me to a change in the numref logic so I can figure out where these warnings are coming\
+    \ from?"
+  validation_command: python -m pytest tests/test_build_html.py::test_numfig_without_numbered_toctree_warn tests/test_build_html.py::test_numfig_with_numbered_toctree_warn
+    tests/test_build_html.py::test_numfig_with_prefix_warn -x
+  expected_min_calls: 5
+- task_id: sympy__sympy-11400
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-11400
+  prompt: 'Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install
+    -e ".[testing]"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.
+
+
+    Fix the following issue:
+
+
+    ccode(sinc(x)) doesn''t work
+
+    ```
+
+    In [30]: ccode(sinc(x))
+
+    Out[30]: ''// Not supported in C:\n// sinc\nsinc(x)''
+
+    ```
+
+
+    I don''t think `math.h` has `sinc`, but it could print
+
+
+    ```
+
+    In [38]: ccode(Piecewise((sin(theta)/theta, Ne(theta, 0)), (1, True)))
+
+    Out[38]: ''((Ne(theta, 0)) ? (\n   sin(theta)/theta\n)\n: (\n   1\n))''
+
+    ```'
+  validation_command: python -m pytest -x -k "test_ccode_Relational or test_ccode_sinc"
+  expected_min_calls: 5
+- task_id: sympy__sympy-11870
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-11870
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nsimplifying exponential -> trig identities\n```\r\nf = 1 / 2 * (-I*exp(I*k) + I*exp(-I*k))\r\
+    \ntrigsimp(f)\r\n```\r\n\r\nIdeally, this would yield `sin(k)`. Is there a way to do this?\r\n\r\nAs a corollary, it would\
+    \ be awesome if \r\n\r\n```\r\nf = 1 / 2 / k* (-I*exp(I*k) + I*exp(-I*k))\r\ntrigsimp(f)\r\n```\r\n\r\ncould yield `sinc(k)`.\
+    \ Thank you for your consideration!"
+  validation_command: python -m pytest -x -k "test_sinc"
+  expected_min_calls: 5
+- task_id: sympy__sympy-12481
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-12481
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\n`Permutation` constructor fails with non-disjoint cycles\nCalling `Permutation([[0,1],[0,1]])`\
+    \ raises a `ValueError` instead of constructing the identity permutation.  If the cycles passed in are non-disjoint, they\
+    \ should be applied in left-to-right order and the resulting permutation should be returned.\r\n\r\nThis should be easy\
+    \ to compute.  I don't see a reason why non-disjoint cycles should be forbidden."
+  validation_command: python -m pytest -x -k "test_args"
+  expected_min_calls: 5
+- task_id: sympy__sympy-13043
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-13043
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\ndecompose() function in intpoly returns a list of arbitrary order\nThe decompose() function,\
+    \ with separate=True, returns `list(poly_dict.values())`, which is ordered arbitrarily.  \r\n\r\nWhat is this used for?\
+    \ It should be sorted somehow, or returning a set (in which case, why not just use the returned dictionary and have the\
+    \ caller take the values). This is causing test failures for me after some changes to the core. \r\n\r\nCC @ArifAhmed1995\
+    \ @certik"
+  validation_command: python -m pytest -x -k "test_decompose"
+  expected_min_calls: 5
+- task_id: sympy__sympy-13146
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-13146
+  prompt: 'Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install
+    -e ".[testing]"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.
+
+
+    Fix the following issue:
+
+
+    Exponent doesn''t fully simplify
+
+    Say I have code like this:
+
+
+    ```
+
+    import sympy
+
+    from sympy import *
+
+    x=Symbol(''x'')
+
+    expr1 = S(1)/2*x**2.5
+
+    expr2 = S(1)*x**(S(5)/2)/2
+
+    res = expr1-expr2
+
+    res= simplify(res.evalf(5))
+
+    print res
+
+    ```
+
+
+    The output is
+
+    `-0.5*x**2.5 + 0.5*x**2.5`
+
+    How do I simplify it to 0?'
+  validation_command: python -m pytest -x -k "test_evalf_bugs"
+  expected_min_calls: 5
+- task_id: sympy__sympy-13177
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-13177
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nMod(x**2, x) is not (always) 0\nWhen the base is not an integer, `x**2 % x` is not 0. The\
+    \ base is not tested to be an integer in Mod's eval logic:\r\n\r\n```\r\nif (p == q or p == -q or\r\n        p.is_Pow\
+    \ and p.exp.is_Integer and p.base == q or\r\n        p.is_integer and q == 1):\r\n    return S.Zero\r\n```\r\n\r\nso\r\
+    \n\r\n```\r\n>>> Mod(x**2, x)\r\n0\r\n```\r\nbut\r\n```\r\n>>> x = S(1.5)\r\n>>> Mod(x**2, x)\r\n0.75\r\n```"
+  validation_command: python -m pytest -x -k "test_mod or test_mod_inverse"
+  expected_min_calls: 5
+- task_id: sympy__sympy-13480
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-13480
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\n.subs on coth(log(tan(x))) errors for certain integral values\n    >>> from sympy import *\r\
+    \n    >>> x = Symbol('x')\r\n    >>> e = coth(log(tan(x)))\r\n    >>> print(e.subs(x, 2))\r\n    ...\r\n    File \"C:\\\
+    Users\\E\\Desktop\\sympy-master\\sympy\\functions\\elementary\\hyperbolic.py\", line 590, in eval\r\n        if cotm is\
+    \ S.ComplexInfinity:\r\n    NameError: name 'cotm' is not defined\r\n\r\nFails for 2, 3, 5, 6, 8, 9, 11, 12, 13, 15, 18,\
+    \ ... etc."
+  validation_command: python -m pytest -x -k "test_coth"
+  expected_min_calls: 5
+- task_id: sympy__sympy-13971
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-13971
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nDisplay of SeqFormula()\n```\r\nimport sympy as sp\r\nk, m, n = sp.symbols('k m n', integer=True)\r\
+    \nsp.init_printing()\r\n\r\nsp.SeqFormula(n**2, (n,0,sp.oo))\r\n```\r\n\r\nThe Jupyter rendering of this command backslash-escapes\
+    \ the brackets producing:\r\n\r\n`\\left\\[0, 1, 4, 9, \\ldots\\right\\]`\r\n\r\nCopying this output to a markdown cell\
+    \ this does not render properly.  Whereas:\r\n\r\n`[0, 1, 4, 9, \\ldots ]`\r\n\r\ndoes render just fine.  \r\n\r\nSo -\
+    \ sequence output should not backslash-escape square brackets, or, `\\]` should instead render?"
+  validation_command: python -m pytest -x -k "test_latex_sequences"
+  expected_min_calls: 5
+- task_id: sympy__sympy-14308
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-14308
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nvectors break pretty printing\n```py\r\nIn [1]: from sympy.vector import *\r\n\r\nIn [2]:\
+    \ e = CoordSysCartesian('e')\r\n\r\nIn [3]: (x/y)**t*e.j\r\nOut[3]:\r\n⎛   t⎞ e_j\r\n⎜⎛x⎞ e_j ⎟\r\n⎜⎜─⎟ ⎟\r\n⎝⎝y⎠ ⎠\r\n\
+    ```\r\n\r\nAlso, when it does print correctly, the baseline is wrong (it should be centered)."
+  validation_command: python -m pytest -x -k "test_issue_12675 or test_pretty_print_unicode"
+  expected_min_calls: 5
+- task_id: sympy__sympy-14774
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-14774
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nLatex printer does not support full inverse trig function names for acsc and asec\nFor example\r\
+    \n`latex(asin(x), inv_trig_style=\"full\")` works as expected returning `'\\\\arcsin{\\\\left (x \\\\right )}'`\r\nBut\
+    \ `latex(acsc(x), inv_trig_style=\"full\")` gives `'\\\\operatorname{acsc}{\\\\left (x \\\\right )}'` instead of `'\\\\\
+    operatorname{arccsc}{\\\\left (x \\\\right )}'`\r\n\r\nA fix seems to be to change line 743 of sympy/printing/latex.py\
+    \ from\r\n`inv_trig_table = [\"asin\", \"acos\", \"atan\", \"acot\"]` to\r\n`inv_trig_table = [\"asin\", \"acos\", \"\
+    atan\", \"acsc\", \"asec\", \"acot\"]`"
+  validation_command: python -m pytest -x -k "test_latex_functions"
+  expected_min_calls: 5
+- task_id: sympy__sympy-15345
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-15345
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nmathematica_code gives wrong output with Max\nIf I run the code\r\n\r\n```\r\nx = symbols('x')\r\
+    \nmathematica_code(Max(x,2))\r\n```\r\n\r\nthen I would expect the output `'Max[x,2]'` which is valid Mathematica code\
+    \ but instead I get `'Max(2, x)'` which is not valid Mathematica code."
+  validation_command: python -m pytest -x -k "test_Function"
+  expected_min_calls: 5
+- task_id: sympy__sympy-15609
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-15609
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nIndexed matrix-expression LaTeX printer is not compilable\n```python\r\ni, j, k = symbols(\"\
+    i j k\")\r\nM = MatrixSymbol(\"M\", k, k)\r\nN = MatrixSymbol(\"N\", k, k)\r\nlatex((M*N)[i, j])\r\n```\r\n\r\nThe LaTeX\
+    \ string produced by the last command is:\r\n```\r\n\\sum_{i_{1}=0}^{k - 1} M_{i, _i_1} N_{_i_1, j}\r\n```\r\nLaTeX complains\
+    \ about a double subscript `_`. This expression won't render in MathJax either."
+  validation_command: python -m pytest -x -k "test_MatrixElement_printing"
+  expected_min_calls: 5
+- task_id: sympy__sympy-16503
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-16503
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nBad centering for Sum pretty print\n```\r\n>>> pprint(Sum(x, (x, 1, oo)) + 3)\r\n  ∞\r\n ___\r\
+    \n ╲\r\n  ╲   x\r\n  ╱     + 3\r\n ╱\r\n ‾‾‾\r\nx = 1\r\n```\r\n\r\nThe `x` and the `+ 3` should be aligned. I'm not sure\
+    \ if the `x` should be lower of if the `+ 3` should be higher."
+  validation_command: python -m pytest -x -k "test_pretty_sum"
+  expected_min_calls: 5
+- task_id: sympy__sympy-16988
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-16988
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nIntersection should remove duplicates\n```python\r\n>>> Intersection({1},{1},{x})\r\nEmptySet()\r\
+    \n>>> Intersection({1},{x})\r\n{1}\r\n```\r\nThe answer should be `Piecewise(({1}, Eq(x, 1)), (S.EmptySet, True))` or\
+    \ remain unevaluated.\r\n\r\nThe routine should give the same answer if duplicates are present; my initial guess is that\
+    \ duplicates should just be removed at the outset of instantiation. Ordering them will produce canonical processing."
+  validation_command: python -m pytest -x -k "test_imageset or test_intersection"
+  expected_min_calls: 5
+- task_id: sympy__sympy-18087
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-18087
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nSimplify of simple trig expression fails\ntrigsimp in various versions, including 1.5, incorrectly\
+    \ simplifies cos(x)+sqrt(sin(x)**2) as though it were cos(x)+sin(x) for general complex x. (Oddly it gets this right if\
+    \ x is real.)\r\n\r\nEmbarrassingly I found this by accident while writing sympy-based teaching material..."
+  validation_command: python -m pytest -x -k "test_Factors or test_fu"
+  expected_min_calls: 5
+- task_id: sympy__sympy-18199
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-18199
+  prompt: 'Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install
+    -e ".[testing]"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.
+
+
+    Fix the following issue:
+
+
+    nthroot_mod function misses one root of x = 0 mod p.
+
+    When in the equation x**n = a mod p , when a % p == 0. Then x = 0 mod p is also a root of this equation. But right now
+    `nthroot_mod` does not check for this condition. `nthroot_mod(17*17, 5 , 17)` has a root `0 mod 17`. But it does not return
+    it.'
+  validation_command: python -m pytest -x -k "test_solve_modular"
+  expected_min_calls: 5
+- task_id: sympy__sympy-18698
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-18698
+  prompt: 'Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install
+    -e ".[testing]"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.
+
+
+    Fix the following issue:
+
+
+    sqf and sqf_list output is not consistant
+
+    The example below is wrong in the sense that we should have (x*_2 - 5_x + 6, 3) and not 2 factors of multiplicity 3.
+
+
+    ```
+
+    >  sqf_list(  (x**2 + 1)  * (x - 1)**2 * (x - 2)**3 * (x - 3)**3  )
+
+
+    >  (1, [(x**2 + 1, 1), (x - 1, 2), (x - 3, 3), (x - 2, 3)])
+
+    ```
+
+
+    whereas below is correct --- one factor of multiplicity 2
+
+
+    ```
+
+    >  sqf_list( x**5 - 2*x**4 - 2*x**3 + 4*x**2 + x - 2 )
+
+
+    >  (1, [(x - 2, 1), (x**2 - 1, 2)])
+
+    ```'
+  validation_command: python -m pytest -x -k "test_factor_terms"
+  expected_min_calls: 5
+- task_id: sympy__sympy-19007
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-19007
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nWrong matrix element fetched from BlockMatrix\nGiven this code:\r\n```\r\nfrom sympy import\
+    \ *\r\nn, i = symbols('n, i', integer=True)\r\nA = MatrixSymbol('A', 1, 1)\r\nB = MatrixSymbol('B', n, 1)\r\nC = BlockMatrix([[A],\
+    \ [B]])\r\nprint('C is')\r\npprint(C)\r\nprint('C[i, 0] is')\r\npprint(C[i, 0])\r\n```\r\nI get this output:\r\n```\r\n\
+    C is\r\n⎡A⎤\r\n⎢ ⎥\r\n⎣B⎦\r\nC[i, 0] is\r\n(A)[i, 0]\r\n```\r\n`(A)[i, 0]` is the wrong here. `C[i, 0]` should not be\
+    \ simplified as that element may come from either `A` or `B`."
+  validation_command: python -m pytest -x -k "test_block_index_symbolic or test_block_index_symbolic_nonzero or test_block_index_large"
+  expected_min_calls: 5
+- task_id: sympy__sympy-20154
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-20154
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\npartitions() reusing the output dictionaries\nThe partitions() iterator in sympy.utilities.iterables\
+    \ reuses the output dictionaries. There is a caveat about it in the docstring. \r\n\r\nI'm wondering if it's really that\
+    \ important for it to do this. It shouldn't be that much of a performance loss to copy the dictionary before yielding\
+    \ it. This behavior is very confusing. It means that something as simple as list(partitions()) will give an apparently\
+    \ wrong result. And it can lead to much more subtle bugs if the partitions are used in a nontrivial way."
+  validation_command: python -m pytest -x -k "test_partitions or test_uniq"
+  expected_min_calls: 5
+- task_id: sympy__sympy-20212
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-20212
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\n0**-oo produces 0, the documentation says it should produce zoo\nUsing SymPy 1.5.1, evaluate\
+    \ `0**-oo` produces `0`.\r\n\r\nThe documentation for the Pow class states that it should return `ComplexInfinity`, aka\
+    \ `zoo`\r\n\r\n| expr | value | reason |\r\n| :-- | :-- | :--|\r\n| `0**-oo` | `zoo` | This is not strictly true, as 0**oo\
+    \ may be oscillating between positive and negative values or rotating in the complex plane. It is convenient, however,\
+    \ when the base is positive.|"
+  validation_command: python -m pytest -x -k "test_zero"
+  expected_min_calls: 5
+- task_id: sympy__sympy-21614
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-21614
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nWrong Derivative kind attribute\nI'm playing around with the `kind` attribute.\r\n\r\nThe\
+    \ following is correct:\r\n\r\n```\r\nfrom sympy import Integral, Derivative\r\nfrom sympy import MatrixSymbol\r\nfrom\
+    \ sympy.abc import x\r\nA = MatrixSymbol('A', 2, 2)\r\ni = Integral(A, x)\r\ni.kind\r\n# MatrixKind(NumberKind)\r\n```\r\
+    \n\r\nThis one is wrong:\r\n```\r\nd = Derivative(A, x)\r\nd.kind\r\n# UndefinedKind\r\n```"
+  validation_command: python -m pytest -x -k "test_Derivative_kind"
+  expected_min_calls: 5
+- task_id: sympy__sympy-21627
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-21627
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nBug: maximum recusion depth error when checking is_zero of cosh expression\nThe following\
+    \ code causes a `RecursionError: maximum recursion depth exceeded while calling a Python object` error when checked if\
+    \ it is zero:\r\n```\r\nexpr =sympify(\"cosh(acos(-i + acosh(-g + i)))\")\r\nexpr.is_zero\r\n```"
+  validation_command: python -m pytest -x -k "test_Abs"
+  expected_min_calls: 5
+- task_id: sympy__sympy-24909
+  phase: 0
+  type: bugfix
+  language: python
+  source: swe-bench-lite
+  repo: tasks/repos/sympy__sympy-24909
+  prompt: "Fix the following issue in this repository. First, set up the environment: run `pip install -e .` or `pip install\
+    \ -e \".[testing]\"` to install dependencies. Then find and fix the bug. Run the relevant tests to verify your fix.\n\n\
+    Fix the following issue:\n\nBug with milli prefix\nWhat happened:\r\n```\r\nIn [1]: from sympy.physics.units import milli,\
+    \ W\r\nIn [2]: milli*W == 1\r\nOut[2]: True\r\nIn [3]: W*milli\r\nOut[3]: watt*Prefix(milli, m, -3, 10)\r\n```\r\nWhat\
+    \ I expected to happen: milli*W should evaluate to milli watts / mW\r\n\r\n`milli*W` or more generally `milli` times some\
+    \ unit evaluates to the number 1. I have tried this with Watts and Volts, I'm not sure what other cases this happens.\
+    \ I'm using sympy version 1.11.1-1 on Arch Linux with Python 3.10.9. If you cannot reproduce I would be happy to be of\
+    \ any assitance."
+  validation_command: python -m pytest -x -k "test_prefix_operations"
+  expected_min_calls: 5
