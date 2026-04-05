@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Virtual environments
+envs/
+
+# SQLite databases (large — share via cloud storage)
+data/*.db
+data/*.db-shm
+data/*.db-wal
+data/*.db.backup*
+
+# Logs
+logs/
+data/*.log
+data/swebench_reports/
+
+# SWE-bench evaluation outputs
+uga-sonnet-*.json
+
+# Cloned task repos (reconstructible via scripts/clone_tasks.sh)
+tasks/repos/
+
+# Machine-specific
+.DS_Store
+lit
+
+# Codex session state
+.context/
+
+# Editor
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
