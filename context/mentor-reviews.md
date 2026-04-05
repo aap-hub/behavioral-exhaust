@@ -44,7 +44,7 @@ Two independent Opus 4.6 reviews from different perspectives. Read both before b
 - SQLite schema over-normalized (5 tables for ~180 rows). Flatten labels into tool_calls.
 - Vuong test at n=50 with 10 clusters — no power. Use scatter plots.
 - Faithfulness check — full day for secondary result that doesn't affect go/no-go. Skip it.
-- Anonymization pipeline — find-and-replace is sufficient for an application artifact.
+- Anonymization pipeline — find-and-replace is sufficient for the current scope.
 - Power analysis formalism — just run a smoke test.
 
 **Underengineered:**

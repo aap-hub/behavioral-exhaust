@@ -1,16 +1,16 @@
 # Codex Audit — Cycle 7
 # 2026-03-29T04:48:44.004359+00:00
 
-P0 1. [src/runner.py](/Users/al/projects/uga-harness/src/runner.py#L374) with [src/db.py](/Users/al/projects/uga-harness/src/db.py#L197) and [src/analysis.py](/Users/al/projects/uga-harness/src/analysis.py#L409): the code claims atomic run/reparse writes, but `insert_run`, `insert_tool_call`, and `update_features` all `commit()` internally. A failure mid-insert can leave a `runs` row with partial `tool_calls`, or a partially replaced run during reparse, silently corrupting counts.
+P0 1. [src/runner.py](src/runner.py#L374) with [src/db.py](src/db.py#L197) and [src/analysis.py](src/analysis.py#L409): the code claims atomic run/reparse writes, but `insert_run`, `insert_tool_call`, and `update_features` all `commit()` internally. A failure mid-insert can leave a `runs` row with partial `tool_calls`, or a partially replaced run during reparse, silently corrupting counts.
 
-P1 2. [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L71) and [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L108): `python -c` / `python3 -c` / `node -e` are treated read-only unless they hit a short denylist. The documented “print/console.log only” rule is not enforced, so many state-changing Bash calls are dropped from `tool_calls` and `total_state_modifying_calls`.
+P1 2. [src/trace_collector.py](src/trace_collector.py#L71) and [src/trace_collector.py](src/trace_collector.py#L108): `python -c` / `python3 -c` / `node -e` are treated read-only unless they hit a short denylist. The documented “print/console.log only” rule is not enforced, so many state-changing Bash calls are dropped from `tool_calls` and `total_state_modifying_calls`.
 
-P1 3. [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L52) and [src/trace_collector.py](/Users/al/projects/uga-harness/src/trace_collector.py#L196): `xargs` is globally whitelisted as read-only outside the pipe special-case. `xargs rm`, `xargs sh -c ...`, etc. will be misclassified read-only, undercounting state-modifying Bash.
+P1 3. [src/trace_collector.py](src/trace_collector.py#L52) and [src/trace_collector.py](src/trace_collector.py#L196): `xargs` is globally whitelisted as read-only outside the pipe special-case. `xargs rm`, `xargs sh -c ...`, etc. will be misclassified read-only, undercounting state-modifying Bash.
 
-P1 4. [src/swebench_validate.py](/Users/al/projects/uga-harness/src/swebench_validate.py#L102): patch replay silently skips `Edit` ops when `old_string` is not found. Validation then runs on a truncated/corrupted patch and still writes `task_success`, poisoning ground truth.
+P1 4. [src/swebench_validate.py](src/swebench_validate.py#L102): patch replay silently skips `Edit` ops when `old_string` is not found. Validation then runs on a truncated/corrupted patch and still writes `task_success`, poisoning ground truth.
 
-P1 5. [src/analysis.py](/Users/al/projects/uga-harness/src/analysis.py#L199): task-level analysis starts from `tool_calls`, so any run with zero recorded state-modifying calls disappears before aggregation/dedup. That is silent record dropping and biases correlations.
+P1 5. [src/analysis.py](src/analysis.py#L199): task-level analysis starts from `tool_calls`, so any run with zero recorded state-modifying calls disappears before aggregation/dedup. That is silent record dropping and biases correlations.
 
-P2 6. [src/analysis.py](/Users/al/projects/uga-harness/src/analysis.py#L291): call-level correlations still compute `rho`, `p`, and significance marks over duplicated run outcomes at the call level. The warning does not fix the math; inference is overstated.
+P2 6. [src/analysis.py](src/analysis.py#L291): call-level correlations still compute `rho`, `p`, and significance marks over duplicated run outcomes at the call level. The warning does not fix the math; inference is overstated.
 
-P2 7. [src/analysis.py](/Users/al/projects/uga-harness/src/analysis.py#L101): missing/unparseable `tool_result_json` is treated as success when computing `prior_failure_streak`. That biases the feature downward on interrupted or malformed traces.
+P2 7. [src/analysis.py](src/analysis.py#L101): missing/unparseable `tool_result_json` is treated as success when computing `prior_failure_streak`. That biases the feature downward on interrupted or malformed traces.

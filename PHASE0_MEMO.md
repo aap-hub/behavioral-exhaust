@@ -405,6 +405,6 @@ For both models:
 - CWC methodology with within-repo permutation tests (10,000 permutations)
 - Random noise control column confirms clean pipeline
 
-**Code:** /Users/al/projects/uga-harness/
+**Code:** 
 **Data:** data/uga_phase0_complete_final.db (373 validated runs, read-only backup)
 **Protocol:** data/protocol_tasks.json (71 locked tasks)

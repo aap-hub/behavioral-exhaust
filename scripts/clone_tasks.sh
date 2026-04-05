@@ -3,17 +3,17 @@
 # Uses --reference to speed up clones by sharing git objects
 set -euo pipefail
 
-REPOS_DIR="/Users/al/projects/uga-harness/tasks/repos"
+REPOS_DIR="tasks/repos"
 TASKS_JSON="/tmp/uga_expansion_tasks.json"
 
 # Reference repos (one per GitHub org/repo)
 REFS=(
-    "django__django:/Users/al/projects/uga-harness/tasks/repos/django__django-14999"
-    "sympy__sympy:/Users/al/projects/uga-harness/tasks/repos/sympy__sympy-13437"
-    "psf__requests:/Users/al/projects/uga-harness/tasks/repos/psf__requests-2317"
-    "pytest-dev__pytest:/Users/al/projects/uga-harness/tasks/repos/pytest-dev__pytest-5221"
-    "pylint-dev__pylint:/Users/al/projects/uga-harness/tasks/repos/pylint-dev__pylint-6506"
-    "pallets__flask:/Users/al/projects/uga-harness/tasks/repos/pallets__flask-4045"
+    "django__django:tasks/repos/django__django-14999"
+    "sympy__sympy:tasks/repos/sympy__sympy-13437"
+    "psf__requests:tasks/repos/psf__requests-2317"
+    "pytest-dev__pytest:tasks/repos/pytest-dev__pytest-5221"
+    "pylint-dev__pylint:tasks/repos/pylint-dev__pylint-6506"
+    "pallets__flask:tasks/repos/pallets__flask-4045"
 )
 
 get_reference() {

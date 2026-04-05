@@ -1,0 +1,52 @@
+% TikZ Evidence Hierarchy Diagram
+\begin{tikzpicture}[
+    >=Stealth,
+    node distance=0.4cm,
+    every node/.style={font=\small},
+    tier/.style={draw, rounded corners=4pt, minimum width=\textwidth, minimum height=1.2cm, text width=\textwidth-20pt, align=left, font=\small, inner sep=10pt},
+    featbox/.style={font=\footnotesize\ttfamily, fill=white, draw=gray!40, rounded corners=2pt, inner sep=3pt},
+]
+
+% ---- Gold ----
+\node[tier, fill=yellow!25!orange!15, draw=yellow!60!orange!40] (gold) {%
+  \textbf{Gold} \hfill {\scriptsize Both models, structural}\\[2pt]
+  \tikz[baseline=(a.base)]{\node[featbox](a){\strut fail\_streak\_max};}
+  \hspace{6pt}
+  \tikz[baseline=(b.base)]{\node[featbox](b){\strut early\_error\_rate};}
+};
+
+% ---- Silver ----
+\node[tier, fill=gray!15, draw=gray!50, below=of gold] (silver) {%
+  \textbf{Silver} \hfill {\scriptsize Model-specific, all tests pass}\\[2pt]
+  \tikz[baseline=(a.base)]{\node[featbox](a){\strut deliberation\_length\, \scriptsize(Sonnet)};}
+  \hspace{6pt}
+  \tikz[baseline=(b.base)]{\node[featbox](b){\strut think\_t\_compat\_frac\, \scriptsize(Codex)};}
+};
+
+% ---- Moderate ----
+\node[tier, fill=orange!10!brown!5, draw=orange!40!brown!30, below=of silver] (moderate) {%
+  \textbf{Moderate} \hfill {\scriptsize CWC + permutation, with caveats}\\[2pt]
+  \tikz[baseline=(a.base)]{\node[featbox](a){\strut first\_edit\_position\, \scriptsize(Sonnet)};}
+  \hspace{6pt}
+  \tikz[baseline=(b.base)]{\node[featbox](b){\strut instead\_contrast\_density\, \scriptsize(Codex)};}
+};
+
+% ---- Retracted ----
+\node[tier, fill=red!8, draw=red!40, below=of moderate] (retracted) {%
+  \textbf{\color{red!70!black}Retracted} \hfill {\scriptsize\color{red!60!black} Permutation $p = 0.35$, between-repo confound}\\[2pt]
+  \tikz[baseline=(a.base)]{\node[featbox, draw=red!40, text=red!60!black](a){\strut\sout{r2a\_alignment}};}
+};
+
+% ---- Null ----
+\node[tier, fill=gray!5, draw=gray!25, below=of retracted] (null) {%
+  \textbf{\color{gray!60!black}Null} \hfill {\scriptsize No signal}\\[2pt]
+  \tikz[baseline=(a.base)]{\node[featbox, draw=gray!25, text=gray!50!black](a){\strut\scriptsize hedging\_score};}
+  \hspace{4pt}
+  \tikz[baseline=(b.base)]{\node[featbox, draw=gray!25, text=gray!50!black](b){\strut\scriptsize verification\_score};}
+  \hspace{4pt}
+  \tikz[baseline=(c.base)]{\node[featbox, draw=gray!25, text=gray!50!black](c){\strut\scriptsize planning\_score};}
+  \hspace{4pt}
+  \tikz[baseline=(d.base)]{\node[featbox, draw=gray!25, text=gray!50!black](d){\strut\scriptsize precision\_naming};}
+};
+
+\end{tikzpicture}

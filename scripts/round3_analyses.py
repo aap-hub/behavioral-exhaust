@@ -15,8 +15,8 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import roc_auc_score, accuracy_score, brier_score_loss
 
-DB_PATH = "/Users/al/projects/uga-harness/data/uga_phase0_complete_final.db"
-OUT_PATH = "/Users/al/projects/uga-harness/data/results/round3_analyses.json"
+DB_PATH = "data/uga_phase0_complete_final.db"
+OUT_PATH = "data/results/round3_analyses.json"
 
 results = {}
 

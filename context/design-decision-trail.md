@@ -93,7 +93,7 @@ Use this when writing up the final report.
 5. Structural faithfulness check (adapted from Chen et al. 2025 intervention-based faithfulness methodology)
 6. Distribution shift check for Phase 0 → Phase 1 model transfer (from D'Amour et al. 2020)
 
-**Rationale:** The reviewers of this application artifact are Anthropic researchers. Using their own published statistical methods demonstrates familiarity with their standards and avoids methodological objections they've already thought about.
+**Rationale:** Using published statistical methods from the agent evaluation literature avoids known methodological objections and aligns with established best practices.
 
 **Decided during:** CEO review, after deep reading of 17+ Anthropic publications.
 

@@ -12,7 +12,7 @@
 
 **Research question:** "What determines the quality of uncertainty signals for agent tool-call decisions?"
 
-**Application context:** Artifact for Anthropic Research Engineer, Agents role. The goal is to demonstrate both a working research harness AND a genuine empirical finding about agent behavioral signals.
+The goal is both a working research harness and a genuine empirical finding about agent behavioral signals.
 
 **Principal investigator background:** PhD in philosophy of science with expertise in modal logic and formal systems. Colleague Matt Mandelkern (MIT) publishes on LLMs and philosophy of language. This background shaped the emphasis on epistemically precise framing, clean measurement/intervention separation, and operational definitions.
 

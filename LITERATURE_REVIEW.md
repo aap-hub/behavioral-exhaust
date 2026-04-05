@@ -146,16 +146,3 @@ Our contribution is NOT "we analyzed SWE-bench trajectories" (that's been done).
 4. Our features are cheap to compute (regex + string matching), not requiring another LLM call.
 
 ---
-
-## Venue Deadlines
-
-| Venue | Deadline | Conference | Location | Fit |
-|-------|----------|------------|----------|-----|
-| COLM 2026 | Mar 31 full paper | Oct 6-9 | San Francisco | Perfect topic fit but 2 days away |
-| NeurIPS 2026 | May 4 abstract / May 6 paper | Dec 2026 | TBD | Strong fit, realistic timeline |
-| EMNLP 2026 | May 25 via ARR | Oct 24-29 | Budapest | Good fit, most time |
-| ICML 2026 workshops | ~May TBD | Jul 10-11 | Seoul | Workshop papers, lower bar |
-| NeurIPS 2026 workshops | ~Sep TBD | Dec 2026 | TBD | Workshop papers if main rejected |
-| AAAI-27 | ~Aug 2026 | Jan 2027 | TBD | Backup with Phase 1 results |
-
-**Recommendation:** ArXiv preprint this week. NeurIPS May 4 as primary target. EMNLP May 25 as fallback.

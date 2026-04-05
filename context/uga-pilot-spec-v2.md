@@ -2,7 +2,7 @@
 
 **Status:** Literature validation complete — fixes applied, ready for Day 1
 **Owner:** Adwait (candidate)
-**Target:** Anthropic Research Engineer, Agents application artifact
+
 **Pilot Duration:** 7 days
 
 ---

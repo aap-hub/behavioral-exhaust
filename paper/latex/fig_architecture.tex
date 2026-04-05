@@ -1,0 +1,74 @@
+% TikZ Architecture Diagram — Behavioral Exhaust Mining Pipeline
+\begin{tikzpicture}[
+    >=Stealth,
+    node distance=0.6cm and 1.2cm,
+    every node/.style={font=\small},
+    box/.style={draw, rounded corners=3pt, minimum width=2.8cm, minimum height=0.7cm, align=center, font=\small},
+    widebox/.style={draw, rounded corners=3pt, minimum width=6.0cm, minimum height=0.7cm, align=center, font=\small},
+    taskbox/.style={box, fill=gray!15, draw=gray!60},
+    agentbox/.style={box, fill=blue!8, draw=blue!40, minimum height=1.0cm},
+    tracebox/.style={box, fill=gray!8, draw=gray!50},
+    outerbox/.style={box, fill=orange!20, draw=orange!60},
+    innerbox/.style={box, fill=blue!15, draw=blue!50},
+    featbox/.style={box, fill=green!15, draw=green!50, font=\footnotesize},
+    valbox/.style={widebox, fill=gray!10, draw=gray!50},
+    statbox/.style={box, fill=purple!10, draw=purple!40, font=\footnotesize},
+    evidbox/.style={widebox, fill=yellow!20, draw=yellow!60!black},
+    annot/.style={font=\scriptsize, text=gray!70!black},
+    arr/.style={->, thick, gray!70!black},
+]
+
+% ---- Task source ----
+\node[taskbox, minimum width=6.0cm] (tasks) {SWE-bench Lite Tasks (75 tasks)};
+
+% ---- Agent columns ----
+\node[agentbox, below left=0.8cm and 0.3cm of tasks] (sonnet) {Claude Sonnet 4.6};
+\node[annot, below=-0.05cm of sonnet] (sann) {183 runs};
+\node[agentbox, below right=0.8cm and 0.3cm of tasks] (codex) {Codex GPT-5.4};
+\node[annot, below=-0.05cm of codex] (cann) {190 runs};
+
+\draw[arr] (tasks.south) -- ++(0,-0.3) -| (sonnet.north);
+\draw[arr] (tasks.south) -- ++(0,-0.3) -| (codex.north);
+
+% ---- Stream-JSON trace ----
+\node[tracebox, minimum width=6.0cm, below=1.0cm of tasks, yshift=-1.2cm] (trace) {Stream-JSON Traces};
+\draw[arr] (sann.south) |- (trace.west);
+\draw[arr] (cann.south) |- (trace.east);
+
+% ---- Outer / Inner split ----
+\node[outerbox, below left=0.9cm and 0.2cm of trace, minimum width=2.6cm] (outer) {OUTER\\[-2pt]{\footnotesize Tool Calls \& Messages}};
+\node[innerbox, below right=0.9cm and 0.2cm of trace, minimum width=2.6cm] (inner) {INNER\\[-2pt]{\footnotesize Thinking / Reasoning}};
+
+\draw[arr] (trace.south) -- ++(0,-0.3) -| (outer.north);
+\draw[arr] (trace.south) -- ++(0,-0.3) -| (inner.north);
+
+% ---- Inner annotations ----
+\node[annot, below=0.0cm of inner, text width=3.0cm, align=center] (innernote) {Sonnet: \texttt{type="thinking"}\\Codex: \texttt{item.type="reasoning"}};
+
+% ---- Feature extraction boxes ----
+\node[featbox, below=0.9cm of outer, minimum width=2.6cm] (tier0) {Tier 0: Structural\\[-2pt](7 features)};
+\node[featbox, below=0.35cm of tier0, minimum width=2.6cm] (tier12) {Tier 1--2: Linguistic\\[-2pt](12 features)};
+\node[featbox, below=1.4cm of inner, minimum width=2.6cm] (cwc) {CWC Thinking\\[-2pt](5 features)};
+
+\draw[arr] (outer.south) -- (tier0.north);
+\draw[arr] (tier0.south) -- (tier12.north);
+\draw[arr] (inner.south) -- ++(0,-0.5) -- (cwc.north);
+
+% ---- Independent Validation ----
+\node[valbox, below=3.2cm of trace, yshift=-4.0cm] (val) {Independent Validation: Fresh-Environment Edit Replay};
+\node[annot, right=0.1cm of val, text=red!70!black] (valx) {\bfseries\texttimes\ agent self-report};
+
+% ---- Statistical pipeline ----
+\node[statbox, below=0.6cm of val, minimum width=6.0cm, minimum height=0.9cm] (stats) {%
+Within-Repo Spearman $\to$ CWC (Confound-Within-Confound)\\[-2pt]
+Fisher Combination $\to$ Permutation Test (10K)};
+
+\draw[arr] (tier12.south) |- ([yshift=0.3cm]val.north west) -- (val.north west);
+\draw[arr] (cwc.south) |- ([yshift=0.3cm]val.north east) -- (val.north east);
+\draw[arr] (val.south) -- (stats.north);
+
+% ---- Evidence hierarchy ----
+\node[evidbox, below=0.6cm of stats] (evid) {Evidence Hierarchy: Gold / Silver / Moderate / Retracted / Null};
+\draw[arr] (stats.south) -- (evid.north);
+
+\end{tikzpicture}

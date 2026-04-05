@@ -426,4 +426,4 @@ The database stores pre-extracted `hedging_score`, `deliberation_length`, `backt
 
 ---
 
-*Analysis run: 2026-03-28. Script: `/Users/al/projects/uga-harness/scripts/phase0_analysis.py`. Raw results cached: `/tmp/uga_phase0_results.pkl`.*
+*Analysis run: 2026-03-28. Script: `scripts/phase0_analysis.py`. Raw results cached: `/tmp/uga_phase0_results.pkl`.*
