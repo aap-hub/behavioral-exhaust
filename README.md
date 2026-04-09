@@ -1,6 +1,6 @@
 # Behavioral Exhaust Mining in Coding Agent Reasoning Traces
 
-[(Paper)]([url](https://github.com/aap-hub/behavioral-exhaust/blob/b1028ff036e4b87b34963f1379df496c5e516d25/paper/latex/paper.pdf))
+[Paper](https://github.com/aap-hub/behavioral-exhaust/blob/b1028ff036e4b87b34963f1379df496c5e516d25/paper/latex/paper.pdf)
 
 Does the unstructured text agents produce while solving tasks contain
 extractable signal about whether they'll succeed? Across 373 validated
