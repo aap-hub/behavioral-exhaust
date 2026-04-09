@@ -1,17 +1,66 @@
-# UGA: Behavioral Exhaust Mining in Coding Agent Reasoning Traces
+# Behavioral Exhaust Mining in Coding Agent Reasoning Traces
 
-**What determines the quality of uncertainty signals for agent tool-call decisions?**
+Does the unstructured text agents produce while solving tasks contain
+extractable signal about whether they'll succeed? Across 373 validated
+runs from Claude Sonnet 4.6 and Codex GPT-5.4 on 75 SWE-bench Lite tasks,
+this project extracts 24 behavioral features at zero API cost and asks
+what survives rigorous confound control.
 
-This project studies whether structural properties of agent reasoning traces are associated with task success. Across 373 validated runs from two models (Claude Sonnet 4.6, Codex GPT-5.4) on 75 SWE-bench Lite tasks, we extract 24 behavioral features at zero API cost and find that behavioral structure — not linguistic hedging — carries model-specific signal.
+## The retraction
 
-## Key Findings
+The original headline finding of this project — that agents which name
+the file they're about to edit in their reasoning are more likely to
+succeed — survived Bonferroni correction at p = 0.00018. I believed it.
+Then I ran a within-repository permutation test (10,000 iterations) and
+the effect vanished (p = 0.35). What I had actually measured was that
+django, where agents tend to name files explicitly, is also an easy
+repository. The whole signal was between-repository difficulty leaking
+into a feature that sounded like it was about agent behavior.
 
-- **Structural features transfer across models**: consecutive error streaks and early error rate are the only features significantly associated with failure in both models
-- **Linguistic features are model-specific**: contrastive marker density shows a confirmed polarity flip (positive in Sonnet, negative in Codex within the same repository)
-- **Thinking and message layers carry opposite signal**: the word "actually" in internal reasoning correlates with failure (genuine confusion) while in agent messages it correlates with success (performative self-correction)
-- **Academic hedging is dead for coding**: the 209-term Hyland hedging vocabulary carries zero signal in either model
-- **Signal degrades over trajectory**: early/mid features discriminate pass from fail; late features do not
-- **Methodological self-correction**: our original headline finding (reasoning-to-action alignment) was retracted when within-repo permutation testing revealed between-repository confounding
+The retraction is documented in [PHASE0_MEMO.md](./PHASE0_MEMO.md) and
+the commit history. The methodology that caught it — Fisher-combined
+within-repo Spearman correlations plus within-repo permutation — is in
+[src/analysis.py](./src/analysis.py). I mention this first because
+it's the thing I learned from this project that I'd most want a
+reviewer to know.
+
+## What survived
+
+- **Structural features transfer across models.** Consecutive error
+  streaks and early error rate are the only features significantly
+  associated with failure in both Sonnet and Codex within the same
+  repository. Nested LOO-CV with held-out tasks: AUC = 0.634 on Codex
+  (p < 0.001), 0.569 on Sonnet (p = 0.064, marginal).
+
+- **Linguistic features are model-specific, and one flips polarity.**
+  Contrastive markers ("however," "but," "instead") are positively
+  associated with success in Sonnet (ρ = +0.282) and negatively in
+  Codex (ρ = −0.264) on the same tasks. Any pooled analysis would
+  cancel both signals.
+
+- **Internal thinking and external messages carry opposite signal.**
+  Tentative language in thinking blocks predicts failure (permutation
+  p = 0.0012); expressed self-correction in messages predicts success.
+  A pipeline that pools the two layers discards or inverts the signal.
+
+- **Academic hedging is dead for coding agents.** The 209-term Hyland
+  hedging vocabulary that works in QA reasoning chains carries zero
+  signal here (ρ ≈ 0, p = 0.60). Coding agents express uncertainty
+  through structural behavior, not through modal expressions.
+
+- **Signal degrades over the trajectory.** Early and mid-trajectory
+  features discriminate pass from fail; late-trajectory features do
+  not (ρ ≈ 0, p > 0.6). Any runtime monitoring gate should focus on
+  the early trajectory.
+
+## Read the paper
+
+- [paper/paper.md](./paper/paper.md) — full draft, ~11,000 words
+- [paper/latex/paper.pdf](./paper/latex/paper.pdf) — typeset version
+- [PHASE0_MEMO.md](./PHASE0_MEMO.md) — analysis memo including the
+  retraction
+- [context/design-decision-trail.md](./context/design-decision-trail.md)
+  — ten key methodological choices and why
 
 ## Project Structure
 
